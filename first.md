@@ -1,6 +1,9 @@
-* # 导航
 
-  * ## 当前工作目录
+[导航](#导航)
+
+# 导航
+
+  - ## 当前工作目录
 
     `pwd` - **p**rint name of current/**w**orking **d**irectory
 
@@ -9,7 +12,7 @@
     $ /home/gexiang
     ```
 
-  * ## 更改当前路径
+  - ## 更改当前路径
 
     `cd` - **c**hange current **d**irectory to dir 
 
@@ -78,21 +81,6 @@
       * 2012-10-26 17:20 上次修改文件的日期和时间.
       * Desktop 文件名.
 
-## 符号链接
-
-  ### 软链接
-
-这种特殊的文件叫做符号链接,一个文件很可能采用多个名字来引用.
-
-```
-lrwxrwxrwx   1 root root       19 Jun 24  2018 libstdc++.so.6 -> libstdc++.so.6.0.19
--rwxr-xr-x   1 root root   991616 May 16  2018 libstdc++.so.6.0.19
-```
-
-上面闲了一个指向libstdc++.so.6.0.19 共享文件的符号链接libstdc++.so.6.其他文件使用libstdc++.so.6的程序的时候访问的是libstdc++.so.6.0.19.如果安装了新的版本如libstdc++.so.6.0.20只需要将原来链接删除重新链接so.6.0.20版本的库文件.所有程序依赖这个库so.6就重新指向了so.6.0.20版本了.假如新版本出现bug,可以重新链接回原有版本.
-
-
-
   * ##  系统层次标准
 
     在Linux系统中,文件系统布局与其他类UNIX系统很相似.实际上,一个已经发布的名为Linux文件系统层次标准(LinuxFilesystemHierarchyStandard)的标准,已经详细阐述了这个设计.并不是所有Linux发行版都严格符合该标准,但大部分与之很接近.
@@ -121,13 +109,14 @@ lrwxrwxrwx   1 root root       19 Jun 24  2018 libstdc++.so.6 -> libstdc++.so.6.
     * /usr/share/doc 安装在系统中大部分程序包含一些文档文件.
     * /var 除了 /tmp和/home目录之外,其余的目录相对来说都是静态的,也就是安装完之后文件内容是不变的.其他可以改变的文件存放在/var目录中.如:数据库,用户邮件.
     * /var/log 记录了各种系统活动,这些文件非常重要,应该时不时监控他们.
-## file命令确定文件类型
 
-  linux 系统中的文件名不反应文件的内容和类型. 使用file命令来确定文件的类型.
+  * ## file命令确定文件类型
 
-  file *filename*
+    linux 系统中的文件名不反应文件的内容和类型. 使用file命令来确定文件的类型.
 
-* # 阅读文本内容
+    file *filename*
+
+# 阅读文本内容
 
   * ## more/less
 
@@ -142,7 +131,7 @@ lrwxrwxrwx   1 root root       19 Jun 24  2018 libstdc++.so.6 -> libstdc++.so.6.
       * -n 查看到n行的内容
 
 
-* # 操作文件与目录
+# 操作文件与目录
 
   * ## 创建目录
 
@@ -194,11 +183,11 @@ lrwxrwxrwx   1 root root       19 Jun 24  2018 libstdc++.so.6 -> libstdc++.so.6.
       硬链接和文件本身并没有什么区别,使用ls -l显示的时候也没有特别的链接说明.当硬链接被删除时,只是这个链接被删除了,文件本身并没有删除,除非该文件所有的链接都被删除.
 
       ```
-      ls -l
+      $ ls -l
       -rw-r--r-- 1 root root      64 Mar 15 10:36 add.py
 
-      ln add.py add_link_file.py
-      ls -l
+      $ ln add.py add_link_file.py
+      $ ls -l
       -rw-r--r-- 2 root root      64 Mar 15 10:36 add_link_file.py
       -rw-r--r-- 2 root root      64 Mar 15 10:36 add.py
       ```
@@ -212,3 +201,12 @@ lrwxrwxrwx   1 root root       19 Jun 24  2018 libstdc++.so.6 -> libstdc++.so.6.
       符号链接是为了克服硬链接的局限性而创建的.符号链接通过创建一个特殊类型文件,该文件包含了指向指向引用文件或目录的文本指针.非常类似与Windows系统中的快捷方式.
 
       符号链接指向的文件与符号链接自身文件几乎没有区别.将一些东西写入符号链接里,那么这些东西也会同样写入引用的文件内.删除一个符号链接时,只是删除符号链接,并没有删除文件本身.
+
+      ```
+      $ ls
+      lrwxrwxrwx   1 root root       19 Jun 24  2018 libstdc++.so.6 -> libstdc++.so.6.0.19
+      -rwxr-xr-x   1 root root   991616 May 16  2018 libstdc++.so.6.0.19
+      ```
+
+      上面闲了一个指向libstdc++.so.6.0.19 共享文件的符号链接libstdc++.so.6.其他文件使用libstdc++.so.6的程序的时候访问的是libstdc++.so.6.0.19.如果安装了新的版本如libstdc++.so.6.0.20只需要将原来链接删除重新链接so.6.0.20版本的库文件.所有程序依赖这个库so.6就重新指向了so.6.0.20版本了.假如新版本出现bug,可以重新链接回原有版本.
+
