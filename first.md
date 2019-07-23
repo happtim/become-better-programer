@@ -6,10 +6,6 @@
   - [FHS - 文件层次标准](#文件层次标准)
   - [file - 文件类型](#文件类型)
 
-[阅读文本内容](#阅读文本内容)
-  - [more/less](#more/less)
-  - [head/tail](#head/tail)
-
 [操作文件与目录](#操作文件与目录)
   - [mkdir - 创建目录](#创建目录) 
   - [cp - 复制文件和目录](#复制文件和目录)
@@ -146,21 +142,6 @@
 
   * ### 文件名可以包含空格和标点符合
     但是在创建文件的时候,仅句号,连字符,下划线是可以使用的.文件名中不要使用空格,会在使用很多命令行的时候使命令解析错参数.
-
-# 阅读文本内容
-
-* ## more/less
-
-  more为早期UNIX中的程序,less比more多了向前翻页的功能. 两个程序都是支持vi的命令操作.
-
-* ## head/tail
-  查看文件的前多少行,查看文件的后多少行.
-
-  head/tail -10 *filename* 
-
-  参数
-    * -n 查看到n行的内容
-
 
 # 操作文件与目录
 
@@ -302,14 +283,14 @@
       上面闲了一个指向libstdc++.so.6.0.19 共享文件的符号链接libstdc++.so.6.其他文件使用libstdc++.so.6的程序的时候访问的是libstdc++.so.6.0.19.如果安装了新的版本如libstdc++.so.6.0.20只需要将原来链接删除重新链接so.6.0.20版本的库文件.所有程序依赖这个库so.6就重新指向了so.6.0.20版本了.假如新版本出现bug,可以重新链接回原有版本.
 
 
-* ## 通配符
+# 通配符
   由于shell需要经常使用文件名,因此他提供了一些特殊字符来帮助你快速指定一组文件名.这些特殊字符称为通配符.
 
     * \* 匹配任意多个字符 (匹配0+个)
     * ? 匹配任意单个字符 (只匹配1个)
     * [characters] 匹配任意一个属于字符集中的字符
 
-  * ### 通配符示例
+  * ## 通配符示例
     * \* 所有文件
     * g* 以g开头的任意文件
     * Data??? 以Data开头,后面跟3个字符的任意文件
@@ -317,16 +298,16 @@
     * backup.[0-9][0-9][0-9] 1以backup.开头,后面紧跟3个数字的任意文件.
 
 
-* ## 命令的使用
+#命令的使用
 
-  * ### 命令是什么
+  * ## 命令是什么
 
   * **可执行程序** 可执行程序就像在/usr/bin目录里看到的所有文件一样.在该程序类别中,程序可以编译为二进制文件,比如C,C++语言编写的程序,也可以是shell,Perl,Python,Ruby等脚本语言编写的程序.
   * **shell内置命令** bash支持许多在内部称之为shell builtin的内置命令.如:cd.kill.set.pwd
   * **shell函数** shell函数是合并到环境变量中的小型shell脚本.
   * **alias** 自定义命令
 
-  * ### 获取命令的简要描述
+  * ## 获取命令的简要描述
 
     whatis 程序实现匹配具体关键字的手册页的名字和一行描述
 
@@ -337,31 +318,31 @@
     ```
 
 
-  * ### 识别命令
+  * ## 识别命令
 
-  type命令是一个shell内置命令,可以显示出要参数命令的类型.
+    type命令是一个shell内置命令,可以显示出要参数命令的类型.
 
-  ```
-  $ type ll
-  ll is aliased to `ls -l --color=auto'
+    ```
+    $ type ll
+    ll is aliased to `ls -l --color=auto'
 
-  $ type mkdir
-  dir is /usr/bin/mkdir
+    $ type mkdir
+    dir is /usr/bin/mkdir
 
-  $ type pwd
-  pwd is a shell builtin
+    $ type pwd
+    pwd is a shell builtin
 
-  $ type -a cd
-  cd is a function
-  cd ()
-  {
-      __zsh_like_cd cd "$@"
-  }
-  cd is a shell builtin
-  cd is /usr/bin/cd
-  ```
+    $ type -a cd
+    cd is a function
+    cd ()
+    {
+        __zsh_like_cd cd "$@"
+    }
+    cd is a shell builtin
+    cd is /usr/bin/cd
+    ```
 
-  * ### 获取执行程序的位置
+  * ## 获取执行程序的位置
     
     `which`命令可以确定一个可执行文件的准确位置,`which`命令只适用于可执行程序,而不适用于内置命令和命令别名.在大型服务器中往往安装软件多个版本,此时可以方便定位出执行命令的位置.
 
@@ -372,7 +353,8 @@
     $which reboot
     /usr/sbin/reboot
     ```
-  * ### 获取命令文档
+
+  * ## 获取命令文档
   
     help 获取shell内置命令的帮助文档
     ```
@@ -384,7 +366,7 @@
     $ mkdir --help
     ```
 
-  * ### man手册
+  * ## man手册
 
     大多数供命令行使用的可执行文件,提供了一个称为manual或者man page的文档.该文档可以用一个`man`的特殊分页程序来查看. 大多数linux系统中,`man`命令待用`less`命令来显示手册文档
     ```
@@ -409,7 +391,7 @@
     $ man 5 passwd
     ```
 
-  * ### 使用别名创建自己的命令
+  * ## 使用别名创建自己的命令
 
     alias name='string'
 
@@ -438,5 +420,208 @@
     alias rm='rm -i'
     ```
 
-* ## 重定向
+# 重定向
+
+  重定向可以把命令行的输入重定向为文件中获取内容,也可以把命令行的输出结果重定向到文件中.如果将多个命令关联起来,形成管道命令.
+
+  * ## 标准输入,标准输出和标准错误
+
+    ```
+    $ ls -l /dev/std*
+    lrwxrwxrwx 1 root root 15 Nov 10  2017 /dev/stderr -> /proc/self/fd/2
+    lrwxrwxrwx 1 root root 15 Nov 10  2017 /dev/stdin -> /proc/self/fd/0
+    lrwxrwxrwx 1 root root 15 Nov 10  2017 /dev/stdout -> /proc/self/fd/1
+
+    $ echo hello world > /dev/stdout
+    hello world
+    ```
+
+    与UNIX"一切都是文件"的思想一致,类似ls的程序实际上把它们的运行结果发送到了一个称为标准输出(standardoutput,通常表示为stdout)的特殊文件中,它们的状态信息则发送到了另一个称为标准错误(standarderror,表示为stderr)的文件中.默认情况下,标准输出和标准错误都将被链接到屏幕上,并且不会被保存在磁盘文件中.
+
+    许多程序从一个称为标准输入(standard input,表示为stdin)的设备得到输入,默认情况下,标准输入连接到键盘.
+
+    I/O重定向功能可以改变输出内容发送的目的地.也可以改变输入内容的来源地.
+
+  * ## 标准输出重定向
+
+    使用">"重定向操作符.IO重定向功能可以重新定义标准输出内哦让那个发送到哪里.后面接文件就可以把便准输出重定向到另一个文件中,而不是显示在屏幕上.主要用于把命令的输出内容保存到一个文件中.
+
+    ```
+    $ ls -l /usr/bin > ls-output.txt
+    $ ls -l ls-output.txt
+    -rw-r--r-- 1 root root 71699 Jul 23 16:09 ls-output.txt
+    ```
+
+    使用">>"重定向操作符,尾部继续添加输出文件.
+    ```
+    $ ls -l /usr/bin > ls-output.txt
+    $ ls -l ls-output.txt
+    -rw-r--r-- 1 root root 71699 Jul 23 16:31 ls-output.txt
+    $ ls -l /usr/bin >> ls-output.txt
+    -rw-r--r-- 1 root root 143398 Jul 23 16:31 ls-output.txt
+    ```
+
+  * ## 标准错误重定向
+
+    ```
+    $ ls -l /bin/usr > ls-output.txt
+    ls: cannot access /bin/usr: No such file or directory
+    ```
+
+    ls命令输出了一条错误信息,但是为什么这个错误信息显示在屏幕上而没有重定向到ls-output.txt.原因是ls程序并不会把它运行的错误信息发送到标准输出文件上.会把错误信息发送到标准错误文件中.因为我们没有重定向标准错误所以这个信息还是打印在屏幕上.
+
+    ```
+    $ ls -l /bin/usr 2> ls-error.txt
+    ```
+
+    shell使用文件描述符(file descriptor)分别索引标准输入,输出和错误.分别编号为0,1,2. 编号2代表就是标准错误输出.
+
+  * ## 标准输出和标准错误同时重定向
+    ```
+    $ ls -l /bin/usr &> ls-output.txt
+    ```
+    使用"&>"符号就可以将标准输出错误输出同时重定向
+
+  * ## 处理不要的输出
+
+    ```
+    $ ls -l /bin/usr 2> /dev/null
+    ```
+    可以把输出重定向到一个称为/dev/null的特殊文件来实现,这个文件称为位桶(bit bucket)的系统设备.
+
+
+  * ## 标准输入重定向
+
+    cat - con**cat**enate files and print on the standard output
+
+    ```
+    $ cat ls-output.txt
+    ```
+    将显示ls-output.txt的文件内容.cat经常用来显示短的文本文件.
+
+    ```
+    $ cat movie.mpeg.* > movie.mpeg
+    ```
+    cat 也可以接受多个文件参数作为输入参数,所以也可以用来把文件拼接在一起.
+
+    ```
+    $ cat
+    hello world #输入回车
+    hello world
+    ```
+    如果cat命令没有给定任何参数,他将从标准输入读取内容,由于标准输入在默认情况下是连接到键盘,所以实际上它正在等待键盘的输入内容.
+
+    ```
+    $ cat < ls-output.txt
+    ```
+    使用重定向符"<".我们将标准输入的源从键盘变为ls-output.txt.由于cat输出又是标准输出.所以会打印ls-output.txt内容.
+
+  * ## 管道
+
+    ```
+    command1 | command2 
+    ```
+    使用管道操作符"|"可以把一个命令的输出传送到另一个命令的标准输入中.
+
+
+    * ### less/more
+
+      more为早期UNIX中的程序,less比more多了向前翻页的功能. 两个程序都是支持vi的命令操作.
+
+      ```
+      $ ls -l /usr/bin | less
+
+      $ less ls-output.txt
+      ```
+      less 命令可以分页显示任意命令输入. 
+
+    导航操作:
+      * 下翻页 SPACE or f(forward)
+      * 上翻页 b(backword)
+      * 下一行 ENTER or j
+      * 上一行 k
+      * 下半页 d
+      * 上半页 u
+
+    * ### head/tail
+
+      查看文件的前多少行,查看文件的后多少行.
+
+      常用参数
+        * -n 查看到n行的内容
+        * -f 只存在tail 当文件有新增时,自动打印内容.
+
+      ```
+      $ head -10 filename
+
+      $ ls -l /usr/bin | head - 10
+      ```
+
+      ```
+      $ tail -f  /var/log/message
+      ```
+      tail -f选项在观察正在被写入的日志的状态时很有用
+
+
+    * ### 排序文件内文本行
+
+      sort - sort lines of text files
+
+      ```
+      $ ls /bin /usr/bin | sort | less
+      ```
+
+    * ### 报告或忽略文件中重复的行
+
+      uniq - report or omit repeated lines(unique) 
+
+      常用参数:
+        * -d 打印重复行,并且进行分组,只打印重复行的组名.
+        * -D 打印重复行.
+        * -u 打印唯一行
+
+      ```
+      $ ls /bin /usr/bin | sort | uniq | less
+
+      $ ls /bin /usr/bin | sort | uniq -d | less
+      ```
+
+    * ### 打印行数,字数和字节数
+ 
+      wc - print newline, **w**ord, and byte **c**ounts for each file
+
+      常用参数:
+        * -c --types
+        * -m --chars
+        * -l --lines
+        * -w --words
+
+      ```
+      $ ls /bin /usr/bin | sort | uniq | wc -l
+      1167
+      ```
+    * ### 打印匹配
+
+       grep, egrep, fgrep - print lines that match patterns
+       (**G**lobally search a **R**egular **E**xpression and **P**rint)
+
+       ```
+       grep pattern [file...]
+       ```
+
+       ```
+       $ ls /bin /usr/bin | sort | uniq | grep zip
+       ```
+
+    * ### 从stdin读取数据,并同时输出到stdout和文件中
+
+      tee - read from standard input and write to standard output and files
+
+      ```
+      ls /usr/bin | tee ls-output.txt | grep zip
+      ```
+
+      tee就好像在管道上安装了"T", 当在某个中间处理阶段来捕获一个管道内容时,会很有用.
+
+
 
