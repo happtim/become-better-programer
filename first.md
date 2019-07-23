@@ -298,7 +298,7 @@
     * backup.[0-9][0-9][0-9] 1以backup.开头,后面紧跟3个数字的任意文件.
 
 
-#命令的使用
+# 命令的使用
 
   * ## 命令是什么
 
@@ -622,6 +622,139 @@
       ```
 
       tee就好像在管道上安装了"T", 当在某个中间处理阶段来捕获一个管道内容时,会很有用.
+
+
+
+# 权限
+
+  * ## 所有者,组成员和其他所有用户
+
+    在UNIX安全模型中,一个用户可以拥有(own)文件和目录.当一个用户拥有一个文件或者目录时,它将对该文件或目录的访问权限拥有控制权.反过来,用户又归属于一个群组(group),该群组由一个或者多个用户组成,组中用户对文件和目录的访问权限由其所有者授予.除了可以授予群组访问权限之外,文件所有者也可以授予所有用户一些访问权限,在UNIX术语中,所有用户是指整个世界(world).
+
+    id - print real and effective user and group IDs
+
+    ```
+    $ id
+    uid=1001(gexiang) gid=1001(happytimes) groups=1001(happytimes),1004(agvs)
+    ```
+
+    在创建用户账户的时候,用户将被分配一个称为用户ID(userID)或者uid的号码。为了符合人们的使用习惯,用户ID与用户名一一映射.同时用户将被分配一个有效组ID(primarygroupID)或者称为gid，而且该用户也可以归属于其他的群组.系统分配普通账户从1000开始编号.
+
+    信息存在哪里?
+      * /etc/passwd 用户账户定义文件
+      * /etc/group 用组定义文件
+      * /etc/shadow 保存用户的密码
+
+  * ## 读写和可执行
+
+    ```
+    $ > foo.txt
+    $ ls -l foo.txt
+    -rw-r--r-- 1 gexiang happytimes 0 Jul 23 20:47 foo.txt
+    ```
+
+    文件类型|所有者权限|组权限|其他用户权限
+    -|-|-|-
+    \-|rw-|r--|r--
+
+    文件类型:
+      * \- 普通文件
+      * d 目录文件
+      * l 符号链接,剩下的属性一定为rwxrwxrwx,他是伪属性.
+      * c 字符设备文件.标准输出,标准输出.
+      * b 块设备.以数据块方式处理数据的设备.
+
+    权限属性:
+    属性|文件|目录
+    -|-|-
+    r|允许打开和读取文件|可以读取目录结构,可以查看查看目录,文件名,不能查看权限所在组等信息.
+    w|允许写入文件|可以新建,移动,重命名一个文件.
+    x|允许文件当作程序执行|允许进入目录.可以查看ls -l内的信息.
+
+
+    目录R权限
+    ```
+    root$ ll
+    drwxr-x--- 4 root    root       4096 Jul 23 21:26 auth
+
+    gexiang$ ll auth
+    ls: cannot open directory auth: Permission denied
+
+    root$ chmod o+r auth/
+    gexiang$ ll auth
+    -????????? ? ? ? ?            ? a
+    d????????? ? ? ? ?            ? sub
+    ```
+
+    目录X权限
+    ```
+    root$ ll
+    drwxr-xr-- 4 root    root       4096 Jul 23 21:26 auth
+
+    gexiang$ cd auth/
+    bash: cd: auth/: Permission denied
+
+    root$ chomd o+x auth/
+    gexiang$ ll auth
+    -rw-r--r-- 1 gexiang happytimes    0 Jul 23 21:25 a
+    drwxr-xr-x 2 root    root       4096 Jul 23 21:22 sub
+    ```
+
+    目录X权限
+    ```
+    gexiang$ cd auth/
+    gexiang$ touch file
+    touch: cannot touch ‘file’: Permission denied
+
+    root$ chmod o+w auth/
+    gexiang$ touch file; ll;
+    -rw-r--r-- 1 gexiang happytimes    0 Jul 23 21:25 a
+    -rw-r--r-- 1 gexiang happytimes    0 Jul 23 21:37 file
+    drwxr-xr-x 2 root    root       4096 Jul 23 21:22 sub
+
+    ```
+
+  * ## 更改文件模式
+  
+     chmod - **ch**ange file **mod**e bits
+
+     chmod支持两种不同方式改变文件方式,八进制表示法和符号表示法.
+
+    * ### 八进制表示法
+      * x 001 1
+      * w 010 2
+      * r 100 4
+      * rwx 111 7
+      * rw- 110 6
+      * r-x 101 5
+      * r-- 100 4
+      * --- 000 0
+
+    ```
+    $ > file; ls -l file
+    -rw-r--r-- 1 root root 0 Jul 23 22:04 file
+
+    $ chmod 600 file; ls -l file
+    -rw------- 1 root root 0 Jul 23 22:04 file
+    ```
+
+    * ### 符号表示法
+
+      该符号表示法分为三部分:更改会影响谁,要执行哪个操作以及要设置哪种权限.
+
+      * u user表示文件或目录的所有者
+      * g 文件所属组
+      * o thers表示其他用户
+      * a all表示u,g,o全部
+      * + 给ugoa添加权限
+      * - 给ugoa删除权限
+      * = 指定权限可用,其余删掉.
+      * r 读权限
+      * w 写权限
+      * x 执行权限
+
+
+
 
 
 
