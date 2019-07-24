@@ -58,9 +58,10 @@
   `ls` - **l**i**s**t directory contents
 
   * ### 常用参数
+    * -l 使用详细格式现实结果
     * -a 列出所有文件,包括以点开头的文件(隐藏文件)
     * -h --human-readable 以详细格式列出时,以人们可读方式现实文件大小
-    * -l 使用详细格式现实结果
+    * -d 将参数按照目录本身列出,而不列出目录内容
     * -t 按照修改时间排序
     * -S 按照文件大小排序
 
@@ -673,7 +674,7 @@
     | x | 允许文件当作程序执行 | 允许进入目录.可以查看`ls -l`内的信息. |
 
 
-    目录R权限
+    目录R权限:
     ```
     root$ ll
     drwxr-x--- 4 root    root       4096 Jul 23 21:26 auth
@@ -687,7 +688,7 @@
     d????????? ? ? ? ?            ? sub
     ```
 
-    目录X权限
+    目录X权限:
     ```
     root$ ll
     drwxr-xr-- 4 root    root       4096 Jul 23 21:26 auth
@@ -701,7 +702,7 @@
     drwxr-xr-x 2 root    root       4096 Jul 23 21:22 sub
     ```
 
-    目录X权限
+    目录X权限:
     ```
     gexiang$ cd auth/
     gexiang$ touch file
@@ -715,11 +716,14 @@
 
     ```
 
-  * ## 更改文件模式
+  * ## 更改文件权限
   
-     chmod - **ch**ange file **mod**e bits
+    chmod - **ch**ange file **mod**e bits
 
-     chmod支持两种不同方式改变文件方式,八进制表示法和符号表示法.
+    chmod支持两种不同方式改变文件方式,八进制表示法和符号表示法.
+
+    常用参数:
+      * -R 递归改变文件和目录
 
     * ### 八进制表示法
       * x 001 1
@@ -731,30 +735,216 @@
       * r-- 100 4
       * --- 000 0
 
-    ```
-    $ > file; ls -l file
-    -rw-r--r-- 1 root root 0 Jul 23 22:04 file
+      ```
+      $ > file; ls -l file
+      -rw-r--r-- 1 root root 0 Jul 23 22:04 file
 
-    $ chmod 600 file; ls -l file
-    -rw------- 1 root root 0 Jul 23 22:04 file
-    ```
+      $ chmod 600 file; ls -l file
+      -rw------- 1 root root 0 Jul 23 22:04 file
+      ```
 
     * ### 符号表示法
 
       该符号表示法分为三部分:更改会影响谁,要执行哪个操作以及要设置哪种权限.
 
-      * u user表示文件或目录的所有者
-      * g 文件所属组
-      * o thers表示其他用户
-      * a all表示u,g,o全部
+      * u 表示"user"表示文件或目录的所有者
+      * g 表示"group"文件所属组
+      * o 表示"thers"表示其他用户
+      * a 表示"all".u,g,o全部.
       * \+ 给ugoa添加权限
       * \- 给ugoa删除权限
       * = 指定权限可用,其余删掉.
       * r 读权限
       * w 写权限
       * x 执行权限
+      * s 在文件执行时把进程属主或者属组设为文件的属性.
+
+      ```
+      $ > file ; ls -l file;
+      -rw-r--r-- 1 root root 0 Jul 24 09:15 file
+
+      $ chmod u+x file; ls -l file;
+      -rwxr--r-- 1 root root 0 Jul 24 09:15 file
+
+      $ chmod ugo=rw file; ls -l file;
+      -rw-rw-rw- 1 root root 0 Jul 24 09:15 file
+      ```
+
+  * ## 设置默认权限
+
+    umask — get or set the file mode creation mask
+
+    umask命令控制着创建文件时给文件的默认权限.它使用八进制表示法从文件模式属性中删除一个位掩码.
+
+    ```
+    $ umask; rm -f file; > file; ls -l file;
+    0022
+    -rw-r--r-- 1 root root 0 Jul 24 09:32 file
+
+    umask 000; rm -f file; > file; ls -l file;
+    -rw-rw-rw- 1 root root 0 Jul 24 09:32 file
+    ```
+
+    原始文件的权限是`rw-`.再把掩码八进制展开成二进制形式.拿原始文件的权限减去掩码的二进制,就是我们创建文件的实际权限了.
+
+    | 原始模式 | --- | rw- | rw- | rw- |
+    |---------|------|-----|----|------|
+    | 掩码 | 000 | 000 | 010 | 010 |
+    | 结果 | --- | rw- | r-- | r-- |
+  
+  * ## 一些特殊权限
+
+    虽然通常看到八进制权限掩码都是3位数字,但是实际用四位数字表示.其中有一些权限较少的使用.
+
+      * setuid 字符表示s,数字表示4,叠加位置user的x位.
+      * setgid 字符表示s,数字表示2,叠加位置group的x位.
+      * sticky bit 字符表示t,数字表示1,叠加位置other的x位
+
+    ```
+    $ ls -l /usr/bin/passwd
+    -rwsr-xr-x. 1 root root 27832 Jun 10  2014 /usr/bin/passwd
+
+     ls -ld /tmp/
+    drwxrwxrwt. 8 root root 4096 Jul 24 09:14 /tmp/
+    ```
+
+    * ### setuid 权限
+
+      八进制表示为4000.当把它应用到一个可执行文件时,有效用户ID将从实际用户ID(实际运行该程序的用户)设置成该程序所有者的ID.仅对可执行程序有意义.
+
+      ```
+      $ which mkdir
+      /usr/bin/mkdir
+
+      $ cp /usr/bin/mkdir /usr/bin/mydir
+      $ chmod u+s /usr/bin/mydir
+
+      $ ls -l /usr/bin/mydir
+      -rwsr-xr-x 1 root root 79864 Jul 24 10:30 /usr/bin/mydir
+
+      $ su - gexiang
+      $ mkdir dir1; mydir dir2;
+
+      $ ls -dl dir*
+      drwxr-xr-x 2 gexiang happytimes 4096 Jul 24 10:31 dir1
+      drwxr-xr-x 2 root    happytimes 4096 Jul 24 10:31 dir2
+      ```
+
+      当普通用户运行一个具有“setuidroot”(已设置setuid位,由root用户所有)属性的程序时,该程序将以超级用户的权限来执行
+
+    * ### setgid 权限
+
+      八进制表示为2000.类似于setuid位,它会把有效组ID从该用户的实际组ID更改为该文件所有者的组ID.可以设置在可以执行程序或者目录中.
+      在一个具有sgit权限的目录下,新建的文档会自动继承目录的属组身份.
+
+      ```
+      $ mkdir public/; ls -ld public/
+      drwxr-xr-x 2 root root 4096 Jul 24 10:47 public
+
+      $ > public/file1
+
+      $ chmod g+s public 
+      $ chown :happytimes public/
+      $ ls -ld public
+      drwxr-sr-x 2 root happytimes 4096 Jul 24 10:48 public
+
+      $ > public/file2
+      $ mkdir public/dir1
+
+      $ ll public/
+      total 4
+      drwxr-sr-x 2 root happytimes 4096 Jul 24 10:50 dir1
+      -rw-r--r-- 1 root root          0 Jul 24 10:48 file1
+      -rw-r--r-- 1 root happytimes    0 Jul 24 10:49 file2
+      ```
+
+      如果对一个目录设置setgid位,那么在该目录下新创建的文件将由该目录所在组所有,而不是由文件创建者所在组所有.当一个公共组下的成员需要访问共享目录下的所有文件时,设置setgid位将很有用,并不需要关注文件所有者所在的有效组.
+
+    * ### sticky
+
+      八进制表示为1000.它是从传统UNIX中继承下来的,可以标记一个可执行文件为"不可交换的".在Linux中,会忽略文件的sticky位,但是如果对一个目录设置sticky位,那么将能阻止用户删除或者重命名文件,除非用户是这个目录的所有者,文件所有者或者是超级用户.它常用来控制对共享目录.比如:/tmp的访问.
+
+      ```
+      $ chomd +t dir
+      ```
 
 
+  * ## 改变身份
+
+    可以有三种方式改变用户的身份:
+      * 注销重新登陆
+      * 使用su命令
+      * 使用sudo命令
+
+
+    * ### su 以其他用户和组ID来运行shell
+  
+      su - run a command with substitute user and group ID
+
+      常用参数:
+        * \- -l --login 将shell按照login方式重新加载
+
+      ```
+      $ su - gexiang
+      Last login: Wed Jul 24 11:26:01 CST 2019 on pts/2
+      [gexiang@iZ28fpe62ijZ ~]$
+      ```
+
+    * ### sudo 以另一个用户身份执行命令
+
+      管理者可以通过配置sudo命令/etc/sudoer配置文件,使系统以一种可控的方式,允许普通用户以一个不同的用户身份执行(通常是超级用户)命令. 
+      sudo命令并不需要输入超级用户的密码,只需要输入自己的密码进行认证.sudo命令并不需要启动一个新的shell环境.
+
+      在推出Ubuntu的时候,Ubuntu的创造者采取了一个不同的策略.默认情况下,Ubuntu不允许用户以root账户的身份登录(因为不能成功为root账户设置密码),取而代之的是使用sudo命令来授予超级用户的特权.最初的用户账户可以通过sudo命令来获得超级用户的全部权限,后面的用户账户也可以被授予相似的权限.
+
+    * ### chown/chgrp 更改文件所有者和所属群组
+
+      chown - **ch**ange file **own**er and group
+
+      ```
+      chown [owner][:[group]] file...
+      chown :group file ... same as chgrp
+      ```
+
+      常用参数:
+        -R --recursive 递归操作文件和目录
+
+
+      ```
+      $ > file; ll file
+      -rw-rw-rw- 1 root root 0 Jul 24 14:02 file
+
+      $ chown gexiang:happytimes file;ll file
+      -rw-rw-rw- 1 gexiang happytimes 0 Jul 24 14:02 file
+      ```
+
+    * 共享目录的使用
+  
+      假设timge和sun都要很多MP3音乐.并想创建一个共享目录存放他们的音乐文件.
+
+      ```
+      $ mkdir /usr/local/share/Music
+      $ ls -ld /usr/local/share/Music
+      drwxr-xr-x 2 root root 4096 Jul 24 14:18 /usr/local/share/Music
+
+      $ chown :happytimes /usr/local/share/Music; 
+      $ ls -ld /usr/local/share/Music
+      drwxr-xr-x 2 root happytimes 4096 Jul 24 14:18 /usr/local/share/Music
+
+      $ chmod 775 /usr/local/share/Music; 
+      $ ls -ld /usr/local/share/Music
+      drwxrwxr-x 2 root happytimes 4096 Jul 24 14:18 /usr/local/share/Music
+
+      $ chmod g+s /usr/local/share/Music;
+      $ ls -ld /usr/local/share/Music
+      drwxrwsr-x 2 root happytimes 4096 Jul 24 14:18 /usr/local/share/Music
+
+      $ su - gexiang 
+      gexinag# umask 0002
+      gexiang# mkdir /usr/local/share/Music/Jay
+      gexiang# ls -ld /usr/local/share/Music/Jay
+      drwxrwsr-x 2 gexiang happytimes 4096 Jul 24 14:26 /usr/local/share/Music/Jay
+      ```
 
 
 
