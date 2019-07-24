@@ -1031,9 +1031,139 @@
       28646 rsyslogd
       ```
 
+  * ## 进程控制
 
+    * ### 中断进程
 
+      ^C same as Ctrl-C
 
+      /dev/zero 类似 /dev/null 是一个虚拟设备,用来无限提供(0x00,ASCII的NULL).
+
+      ```
+      $ dd if=/dev/zero of=/dev/null
+      ^C409577+0 records in
+      409577+0 records out
+      209703424 bytes (210 MB) copied, 1.32879 s, 158 MB/s
+      ```
+
+      当执行命令时,shell提示符没有任何返回,这是因为shell正在等待命令结束. 我们按下Ctrl-C会中断程序,然后shell提示符返回.
+
+    * ### & 后台执行
+
+      我们想shell提示符返回,但又不终止程序,可以使用让程序在后台的方式实现.可以把终端想象成一个有前台和后台环境. 在命令后面加上`&`来实现后台运行.
+
+      ```
+      $ dd if=/dev/zero of=/dev/null &
+      [1] 25343
+      ```
+
+      打印的这行内容称为作业控制(job control)的特性表现.显示作业编号为1.PID为25343.
+
+    * ### jobs 查询后台作业
+
+      jobs — display status of jobs in the current session
+
+      ```
+      $ jobs
+      [1]+  Running                 dd if=/dev/zero of=/dev/null &
+      ```
+
+    * ### fg 使进程回到前台
+  
+      fg — run jobs in the foreground
+
+      ```
+      fg [job_id]
+      ```
+
+      ```
+      $ fg 1
+      dd if=/dev/zero of=/dev/null
+      ```
+
+    * ### Ctrl-Z 暂停进程
+
+      ```
+      ^Z
+      [1]+  Stopped                 dd if=/dev/zero of=/dev/null
+      ```
+
+    * ### bg 使进程回到后台
+
+      bg — run jobs in the background
+
+      ```
+      bg [job_id ...]
+      ```
+
+      ```
+      $ dd if=/dev/zero of=/dev/null &
+      [1] 25658
+
+      $ fg
+      dd if=/dev/zero of=/dev/null
+      ^Z
+      [1]+  Stopped                 dd if=/dev/zero of=/dev/null
+
+      $ bg 1
+      [1]+ dd if=/dev/zero of=/dev/null &
+
+       jobs
+      [1]+  Running                 dd if=/dev/zero of=/dev/null &
+      ```
+
+  * ## 信号
+
+    * ### kill 命令
+
+      kill - terminate a process
+
+      ```
+      kill [-signal | -s signal] PID|name ...
+      ```
+
+      参数:
+        * -l 列出所有信号
+        * -s 发送指定信号可以是名字或者编号
+
+      kill命令通常用来杀死进程,用它可以终止运行不正常德程序或者拒绝终止的程序.更准确的说他给进程发送信号.信号是操作系统和程序见通信的一种方式.
+      Ctrl-C 中断(INT,Interrupt)和Ctrl-Z 中断暂停(TSTP,Terminal Stop)就是发送的信号.
+
+      ```
+      $ dd if=/dev/zero of=/dev/null &
+      [1] 25691
+
+      $ kill  25691
+      $ kill -9 25691 # 9为kill信号
+      ```
+
+    * ### killall 发送信号给多个进程
+
+      killall - kill processes by name
+
+      ```
+      $ dd if=/dev/zero of=/dev/null &
+      [1] 25691
+
+      $ dd if=/dev/zero of=/dev/null &
+      [2] 25711
+
+      $ jobs
+      [1]-  Running                 dd if=/dev/zero of=/dev/null &
+      [2]+  Running                 dd if=/dev/zero of=/dev/null &
+
+      $ killall dd
+      
+      $ jobs 
+      [2]+  Terminated              dd if=/dev/zero of=/dev/null
+      ```
+    
+    * ### pkill 杀死指定的进程
+  
+      same as pgrep
+
+  
+      
 
 
 
