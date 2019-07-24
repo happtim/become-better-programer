@@ -945,6 +945,95 @@
       gexiang# ls -ld /usr/local/share/Music/Jay
       drwxrwsr-x 2 gexiang happytimes 4096 Jul 24 14:26 /usr/local/share/Music/Jay
       ```
+# 进程
+
+  内核会保存每个进程的信息以便确保任务有序进行.比如,每个进程将被分配一个称为进程ID(PID，processID)的号码.进程ID是按递增的顺序来分配的,init进程的PID始终为1.内核也记录分配给每个进程的内存信息以及用来恢复运行的进程就绪信息.和文件系统类似,进程系统中也存在所有者,用户ID,有效用户ID等。
+
+  * ## 查看进程信息
+
+    * ### ps 查看进程信息
+
+      ps - report a snapshot of the current processes.
+
+      常用参数:
+        * a (前面没有连字符)显示所有终端的进程
+        * u (前面没有连字符)显示更多信息 
+        * x (前面没有连字符)告知ps命令显示所有的进程,而不关心它属于那个终端 
+
+        * -e 显示系统所有进程
+        * -l 使用长格式输出
+        * -f 使用完成格式输出信息
+
+        ```
+        $ ps aux
+        $ ps -elf
+        ```
+    
+      进程状态STAT列:
+        * R 运行状态.正在运行或准备运行
+        * S 睡眠状态.进程不在运行,而是等待某件事情发送,如键盘输入或者网络报文.
+        * D 不可中断睡眠睡眠.进程在等待I/O操作.
+        * T 暂停状态.进程被指示暂停.
+        * X 无效或者"僵尸"进程.子进程被终止 ,但是还没有被其父进程彻底释放掉.
+        * < 高优先级进程.进程可以被赋予等多的重要性,分配更多的CPU时间.
+        * N 低有优先级进程.只有在其他更高优先级的进程使用完成处理器才能使用CPU时间.
+        * 
+
+    * ### pstree 查看进程树
+
+        pstree - display a tree of processes
+
+        ```
+        pstree [options] [pid,user]
+        ```
+
+        常用参数:
+          * -a 显示命令行参数
+          * -u 显示用户名
+          * -p 显示PIDs.
+
+        ```
+        $ pstree -aup
+
+        $ pstree 1 #查看指定PID的进程树
+
+        $ pstree -p root #查看指定用户进程树
+        ```
+
+    * ### top 进程动态排名
+
+      top - display Linux processes
+
+      top程序将按照进程活动的顺序,以列表的形式持续更新显示系统的当前信息.它主要查看系统最高进程的运行情况.显示包含两部分,顶部分显示的是系统总体状态信息,下部是进程显示信息.
+
+      主要交互参数:
+        * M 内存排序
+        * N PID排序
+        * P CPU使用率排序
+        * T 运行时间排序
+
+    * ### pgrep 进程检索信息
+
+      pgrep,  pkill  -  look up or signal processes based on name and other attributes
+
+      ```
+      pgrep [options] ... pattern
+      ```
+
+      常用参数:
+        * -u 指定用户的进程
+        * -l 输出进程名
+        * -t 检索指定终端
+
+      ```
+      $ pgrep -l -u root log
+      481 systemd-logind
+      28646 rsyslogd
+      ```
+
+
+
+
 
 
 
