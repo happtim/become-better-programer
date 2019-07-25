@@ -1337,5 +1337,70 @@
   
     多年以前,类UNIX操作系统就可以通过网络进行远程操控.早期,在互联网还未普及的时候,登录远程主机有两个很受欢迎的命令rlogin和telnet命令.但是它们与ftp命令有着相同的致命缺点,即所有通信信息(包括用户名和密码)都是以明文的方式传输的,所以它们并不适用于互联网时代.
 
-    
+    * ### ssh 安全登陆远程计算机
+
+      为了解决明文传输问题,ssh(Secure Shell)的新协议应运而生.ssh登陆过程.
+
+      1. 用户向远程主机发登录请求：ssh user@远程主机
+
+      2. 远程主机收到用户的登录请求,把自己的公钥发给用户.
+
+      3. 用户使用这个公钥,将登录密码加密后,发送回远程主机.
+
+      4. 远程主机用自己的私钥,解密登录密码,如果密码正确,就同意用户登录.
+
+
+      如果你是第一次登录对方主机，系统会出现下面的提示：
+      ```
+      $ ssh user@host 
+      The authenticity of host 'host (12.18.429.21)' can't be established. 
+      RSA key fingerprint is 98:2e:d7:e0:de:9f:ac:67:28:c2:42:2d:37:16:58:4d. 
+      Are you sure you want to continue connecting (yes/no)?
+      ```
+      这段话的意思是,无法确认host主机的真实性,只知道它的公钥指纹,问你还想继续连接吗? 
+      所谓"公钥指纹",是指公钥长度较长(这里采用RSA算法，长达1024位),很难比对,所以对其进行MD5计算,将它变成一个128位的指纹.上例中是98:2e:d7:e0:de:9f:ac:67:28:c2:42:2d:37:16:58:4d，再进行比较，就容易多了. 很自然的一个问题就是,用户怎么知道远程主机的公钥指纹应该是多少?回答是没有好办法,远程主机必须在自己的网站上贴出公钥指纹,以便用户自行核对.
+      
+      当远程主机的公钥被接受以后,它就会被保存在文件$HOME/.ssh/known_hosts之中.下次再连接这台主机,系统就会认出它的公钥已经保存在本地了,从而跳过警告部分,直接提示输入密码.
+
+
+    * ### 公钥登陆
+
+      使用密码登录,每次都必须输入密码,非常麻烦.ssh提供免密码登陆方式. 
+      用户将自己的公钥储存在远程主机上.登录的时候,远程主机会向用户发送一段随机字符串,用户用自己的私钥加密后,再发回来.远程主机用事先储存的公钥进行解密,如果成功就证明用户是可信的,直接允许登录shell,不再要求输入密码.
+
+    * ### scp 安全传输文件 
+     
+      scp — secure copy (remote file copy program)
+
+      ```
+      scp source ... target
+      source target: [user@]host:[path] or [user@]host[:port][path]
+      ```
+
+      ```
+      root$ ll /home/gexiang
+      -rw------- 1 gexiang happytimes    0 Jul 23 22:07 file
+
+      root$ scp gexiang@localhost:file ./scp-file
+      gexiang@localhost's password: #输入密码不会显示
+      file                                          100%    0     0.0KB/s   00:00
+
+      root$ scp scp-file gexiang@localhost:scp-scp-file
+      gexiang@localhost's password:
+      scp-file                                      100%    0     0.0KB/s   00:00
+
+      root$ ll /home/gexiang/scp*
+      -rw------- 1 gexiang happytimes 0 Jul 25 11:57 /home/gexiang/scp-scp-file
+      ```
+
+    * ### sftp 安全的文件传输协议
+  
+      sftp — secure file transfer program
+
+      它是ftp程序的安全版本.Sftp与我们先前使用的ftp程序功能极为相似,只是sftp是用SSH加密隧道传输信息而不是以明文方式传输.Sftp相比传统的ftp而言,还有一个重要的优点,就是它并不需要远程主机上运行FTP服务器,仅仅需要SSH服务器.
+
+
+
+
+
 
