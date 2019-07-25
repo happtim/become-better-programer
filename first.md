@@ -111,7 +111,7 @@
     * /root root账户的主目录
     * /sbin 存放系统级别的可执行重要程序,如重启.为root用户使用.
     * /tmp 供用户存放各种程序的零时文件目录.
-    * /usr 他包含普通用户使用的所有程序和相关文件.
+    * /usr 他包含普通用户使用的所有程序和相关文件(unix system resources).
     * /usr/bin Linux发行版安装的可执行程序.
     * /usr/lib  /usr/bin目录中程序使用的共享库
     * /usr/local 是非系统发行版自带,但打算让系统使用的程序安装目录.通常为自己编译的程序.
@@ -284,14 +284,14 @@
       上面闲了一个指向libstdc++.so.6.0.19 共享文件的符号链接libstdc++.so.6.其他文件使用libstdc++.so.6的程序的时候访问的是libstdc++.so.6.0.19.如果安装了新的版本如libstdc++.so.6.0.20只需要将原来链接删除重新链接so.6.0.20版本的库文件.所有程序依赖这个库so.6就重新指向了so.6.0.20版本了.假如新版本出现bug,可以重新链接回原有版本.
 
 
-# 通配符
+* ## 通配符
   由于shell需要经常使用文件名,因此他提供了一些特殊字符来帮助你快速指定一组文件名.这些特殊字符称为通配符.
 
     * \* 匹配任意多个字符 (匹配0+个)
     * ? 匹配任意单个字符 (只匹配1个)
     * [characters] 匹配任意一个属于字符集中的字符
 
-  * ## 通配符示例
+  * ### 通配符示例
     * \* 所有文件
     * g* 以g开头的任意文件
     * Data??? 以Data开头,后面跟3个字符的任意文件
@@ -1276,6 +1276,33 @@
       tcp        0      0 10.30.106.90:42552      10.146.184.215:3306     ESTABLISHED 28636/ruby
       ```
 
+    * ### hostname 查看设置主机名
+  
+      hostname - show or set the system's host namehostname
+
+      ```
+      $ hostname
+      aliyun
+
+      $ hostname aliyun
+      ```
+
+      相关文件:
+        * /etc/hostname
+        * /etc/hosts
+        * /etc/host.conf
+
+    * ### ifconfig 查看网卡ip和mac信息
+
+      ifconfig - configure a network interface
+
+      常用参数:
+        * -a 查看所有接口
+
+      ```
+      $ ifconfig -a
+      ```
+
   * ## 通过网络传输文件
 
     * ### ftp 传输文件
@@ -1397,10 +1424,61 @@
   
       sftp — secure file transfer program
 
+      ```
+      sftp [user@]host[:path]
+      ```
+
       它是ftp程序的安全版本.Sftp与我们先前使用的ftp程序功能极为相似,只是sftp是用SSH加密隧道传输信息而不是以明文方式传输.Sftp相比传统的ftp而言,还有一个重要的优点,就是它并不需要远程主机上运行FTP服务器,仅仅需要SSH服务器.
 
 
+# 文件压缩
+
+  一幅只有一种颜色的图像包含了完全冗余的数据,我们要是聪明的话,编码该图像数据时可以直接简单地描述成有30,000个字节的黑色像素.无需存储一个包含30,000字节的0(图像文件里面，黑色通常用零表示)的数据块,而是将这些数据压缩成数字30,000和一个0来表示.这种数据压缩技术,称为游程编码(run-lenghencoding).它是最基本的一种压缩技术.现今的压缩技术则更先进,更复杂,但基本目标一直是消除冗余数据信息.
+
+  压缩分为两种:无损压缩与有损压缩.
+  无损压缩保留原文件中的所有数据,也就是说这种方式的压缩文件还原时,还原后的文件与原文件完全一致.
+  损压缩,在压缩时为了实现更大程度的压缩而删除了某些数据信息,有损压缩文件还原时,与原文件并不是完全吻合,但是与原文件差别并不大.JPEG(图像压缩技术)和MP3(音频压缩技术)技术是典型的有损压缩实例.
 
 
+  * ## gzip/gunzip 文件压缩与解压
 
+    gzip命令用于压缩一个或更多为你教案,执行命令之后源文件会被压缩文件取代.
+
+    常用参数:
+      * -t 检测压缩文件完整性
+      * -d 解压缩类似gunzip.
+      * -number 设定压缩级别.(1-9)数字越大越慢压缩率越高.默认使用6
+
+    ```
+    $ ll /etc/ > foo.txt; ll foo.*
+    -rw-r--r-- 1 root root 14718 Jul 25 13:16 foo.txt
+
+    $ gzip foo.txt; ll foo.*
+    -rw-r--r-- 1 root root 2920 Jul 25 13:16 foo.txt.gz
+
+    $ gunzip foo.txt.gz; ll foo.*
+    -rw-r--r-- 1 root root 14718 Jul 25 13:16 foo.txt
+    ```
+
+  * ## bzip2压缩 
+
+    与gzip命令功能相仿，但使用不同的压缩算法。该算法具有高质量的数据压缩能力，但却降低了压缩速度。多数情况下，其用法与gzip类似，只是用bzip2压缩后的文件以.bz2为后缀。
+
+    ```
+    $ bzip2 foo.txt; ll foo.*
+    -rw-r--r-- 1 root root 2638 Jul 25 13:16 foo.txt.bz2
+
+    $ bunzip2 foo.txt.bz2; ll foo.*
+    -rw-r--r-- 1 root root 14718 Jul 25 13:16 foo.txt
+    ```
+
+  * tar 文件归档
+
+    tar - an archiving utility
+
+    tar [OPTIONS] [ARCHIVE] [FILE...]
+
+    常用命令:
+      * -c 创建.tar格式归档
+      * -x 解开.tar格式的归档
 
