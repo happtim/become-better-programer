@@ -1162,9 +1162,180 @@
   
       same as pgrep
 
+# 配置与环境
+
+    环境中存储了两种类型,分别是环境变量(environment variable) 和 shell变量(shell variable). shell变量是由bash存放少量数据,环境变量就是除此之外其他变量.
+
+
+  * ## 检查环境
+
+    printenv - **print** all or part of **env**ironment
+
+    ```
+    printenv [OPTION] ... [VARIABLE] ...
+    ```
+
+    ```
+    $ printenv | less
+
+    ```
+
+    set命令如果不带选项或者参数,那么只会显示shell变量,环境变量以及已定义的shell函数.
+    ```
+    $ type set
+    set is a shell builtin
+
+    $ set | less
+    ```
+
+    打印单条变量内容
+    ```
+    $ printenv  USER
+    root
+
+    $ echo $HOME
+    /root
+    ```
+
+  常见环境变量:
+    * SHELL 当前用户shell名称
+    * HOME 当前用户主目录的路径
+    * PATH 以冒号分割的一个目录列表,当用户输入一个可执行程序的名称时,会查找该目录列表.
+    * PWD 当前工作目录
+    * OLDPWD 之前工作目录
+    * PS1 提示字符串1.
+
+
+  * ## 环境是如何建立
+
+    用户登陆系统之后,bash程序就会启动并读取一配置脚本,这些脚本定义了所有用户共享的默认环境.bash会继续读取在用户主目录下用于定义个人环境的配置文件.
+
+    启动配置脚本:
+      * /etc/profile 此文件为系统的每个用户设置环境信息,当用户第一次登录时,该文件被执行. 并从/etc/profile.d目录的配置文件中搜集shell的设置.
+      * /etc/bashrc 为每一个运行bash shell的用户执行此文件.当bash shell被打开时,该文件被读取
+      * ~/.bash_profile 每个用户都可使用该文件输入专用于自己使用的shell信息,当用户登录时,该文件仅仅执行一次.默认情况下,他设置一些环境变量,执行用户的.bashrc文件.
+      * ~/.bashrc 该文件包含专用于你的bash shell的bash信息,当登录时以及每次打开新的shell时,该该文件被读取.
+      * ~/.bash_logout 当每次退出系统退出bash shell时,执行该文件. 
+
+# 网络
+
+  * ## 检查,监控网络
   
+    * ### ping 检测与目标主机是否联通
+
+      ping - send ICMP ECHO_REQUEST to network hosts
+
+      ```
+      $ ping bing.com
+      PING bing.com (13.107.21.200) 56(84) bytes of data.
+      64 bytes from 13.107.21.200 (13.107.21.200): icmp_seq=1 ttl=115 time=41.9 ms
+      64 bytes from 13.107.21.200 (13.107.21.200): icmp_seq=2 ttl=115 time=41.9 ms
+      64 bytes from 13.107.21.200 (13.107.21.200): icmp_seq=3 ttl=115 time=42.9 ms
+      64 bytes from 13.107.21.200 (13.107.21.200): icmp_seq=4 ttl=115 time=41.9 ms
+      ^C
+      ```
+
+    * ### traceroute 跟踪网络数据包的传输路径
+
+      traceroute hostname
+
+      显示从本地系统到目标主机经过的路由列表
+
+    * ### netstat 检查网络设置及相关统计
+
+      netstat - Print network connections, routing tables, interface sta‐tistics, masquerade connections, and multicast memberships
+
+      统计类型:
+        * 无参数 显示socket监听信息
+        * -r 显示内核路由表
+        * -i 显示网络接口表
+        * -s 显示统计信息
+
+       ```
+       $ netstat -ie
+       ```
+
+      常用socket参数:
+        * -a 显示列出所有的连接,服务监听.
+        * -t 列出tcp协议服务
+        * -u 列出udp西医服务
+        * -n 显示端口号
+        * -l 列出当前监听服务(默认)
+        * -p 列出服务的PID
       
+      ```
+      $ nestat -atunp
+      
+      Active Internet connections (servers and established)
+      Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+      tcp        0      0 0.0.0.0:111             0.0.0.0:*               LISTEN      1/systemd
+      tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      18092/httpd
+      tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      22008/sshd
+      tcp        0      0 139.129.117.115:3000    0.0.0.0:*               LISTEN      28636/ruby
+      tcp        0    464 139.129.117.115:22      121.236.226.32:51868    ESTABLISHED 26991/sshd: root@pt
+      tcp        0      0 10.30.106.90:42552      10.146.184.215:3306     ESTABLISHED 28636/ruby
+      ```
 
+  * ## 通过网络传输文件
 
+    * ### ftp 传输文件
 
+      ftp是由File Transfer Protocol协议缩写而来,ftp程序比web浏览器出现的还早,大多数浏览器都支持ftp协议.ftp的传输并不安全,它以明文的方式传送账号和密码.大部分使用ftp传输文件都使用匿名方式,允许没有登陆名和密码.
+
+      常用交互命令
+        * ls/dir 列出目
+        * cd 切换目录
+        * get/mget 下载文件/多个
+        * put/send 上传文件
+        * open 在进入ftp模式登陆ftp服务
+        * close 断开这次连接,还在ftp模式
+        * bye/quit 离开
+        * help 帮助
+
+      以匿名方式登陆上海交大ftp
+
+      ```
+      $ ftp ftp.sjtu.edu.cn
+      Trying 202.38.97.230...
+      Connected to ftp.sjtu.edu.cn (202.38.97.230).
+      220 (vsFTPd 3.0.2)
+      Name (ftp.sjtu.edu.cn:root): anonymous  #匿名登陆
+      331 Please specify the password.
+      Password: #无密码
+      230 Login successful.
+      Remote system type is UNIX.
+      Using binary mode to transfer files.
+      ftp>
+
+      ftp> get sjtu.edu.cn.html /home/gexiang/sjtu.edu.cn.html
+      local: /home/gexiang/sjtu.edu.cn.html remote: sjtu.edu.cn.html
+      227 Entering Passive Mode (202,38,97,230,243,35).
+      150 Opening BINARY mode data connection for sjtu.edu.cn.html (333 bytes).
+
+      put dsh.log
+      local: dsh.log remote: dsh.log
+      227 Entering Passive Mode (202,38,97,230,126,222).
+      550 Permission denied.
+      ```
+  
+    * ### wget 非交互式网络下载工具
+
+    The non-interactive network downloader.
+
+    ```
+     wget [option]... [URL]...
+    ```
+
+    常用参数:
+      * -O 下载到本地文件名
+
+    ```
+    $ wget baidu.com 
+    ```
+
+  * ## 与主机建立安全通信
+  
+    多年以前,类UNIX操作系统就可以通过网络进行远程操控.早期,在互联网还未普及的时候,登录远程主机有两个很受欢迎的命令rlogin和telnet命令.但是它们与ftp命令有着相同的致命缺点,即所有通信信息(包括用户名和密码)都是以明文的方式传输的,所以它们并不适用于互联网时代.
+
+    
 
