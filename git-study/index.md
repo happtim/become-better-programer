@@ -5,6 +5,5 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
 >  在我们上大学时,每个人都有这样得经历,在写毕业论文时,一个版本一个版本修改.每当增加删除一些段落时,就将原来得版本备份一个,生怕过些时日又要用的里面得一些内容.
 >
-> 
-> <img src="./asset/graduation_projec.jpg" width="80%" style="margin:0 auto;">
+> <div> ![毕业设计](./asset/graduation_projec.jpg)  </div>
 > 
