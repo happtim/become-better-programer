@@ -138,123 +138,123 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
         处于工作目录的文件通过`add`命令转化状态为已暂存. 已暂存的文件通过`commit`命令转化为已提交状态. 编辑以提交或者暂存区的文件,其状态转化为已修改.
 
-<!--
     <details>
     <summary style="font-size:18px">文件状态跟踪</summary>
--->
 
-  - ### 检查文件状态
+    - ### 检查文件状态
 
-    ```
-    $ git status
-    # On branch master
-    # Initial commit
-    nothing to commit (create/copy files and use "git add" to track)
-    ```
+        ```
+        $ git status
+        # On branch master
+        # Initial commit
+        nothing to commit (create/copy files and use "git add" to track)
+        ```
 
-    提示工作目录很干净,没有未跟踪的文件和修改的文件.同时还显示了当前分支在`master`
+        提示工作目录很干净,没有未跟踪的文件和修改的文件.同时还显示了当前分支在`master`
 
-    ```
-    $ echo "# Git basic" > README.md
-    $ git ss
-    # On branch master
-    # Initial commit
-    # Untracked files:
-    #   (use "git add <file>..." to include in what will be committed)
-    #
-    #       README.md
-    nothing added to commit but untracked files present (use "git add" to track)
-    ```
+        ```
+        $ echo "# Git basic" > README.md
+        $ git ss
+        # On branch master
+        # Initial commit
+        # Untracked files:
+        #   (use "git add <file>..." to include in what will be committed)
+        #
+        #       README.md
+        nothing added to commit but untracked files present (use "git add" to track)
+        ```
 
-    我们新增一个`README.md`文件,然后使用状态查看命令.然后文件出现在未跟踪的文件中.需要显示的表明我想跟踪它之后才会纳入跟踪返回. 由于我们编译程序会产生一些二进制文件,不是出现在我们工作目录中的文件就会被跟踪的.
+        我们新增一个`README.md`文件,然后使用状态查看命令.然后文件出现在未跟踪的文件中.需要显示的表明我想跟踪它之后才会纳入跟踪返回. 由于我们编译程序会产生一些二进制文件,不是出现在我们工作目录中的文件就会被跟踪的.
 
     - ### 跟踪文件
 
-    ```
-    $ git add README.md
-    $ git ss
-    # On branch master
-    # Initial commit
-    # Changes to be committed:
-    #   (use "git rm --cached <file>..." to unstage)
-    #
-    #       new file:   README.md
-    ```
+        ```
+        $ git add README.md
+        $ git ss
+        # On branch master
+        # Initial commit
+        # Changes to be committed:
+        #   (use "git rm --cached <file>..." to unstage)
+        #
+        #       new file:   README.md
+        ```
 
-    `git add`命令将指定的文件纳入跟踪,将其放入缓存区.
+        `git add`命令将指定的文件纳入跟踪,将其放入缓存区.
 
     - ### 提交更新
   
-    ```
-    $ git commit -m 'first commit add readme file'
-    [master (root-commit) 7702aa7] first commit add readme file
-    1 file changed, 1 insertion(+)
-    create mode 100644 README.md
+        ```
+        $ git commit -m 'first commit add readme file'
+        [master (root-commit) 7702aa7] first commit add readme file
+        1 file changed, 1 insertion(+)
+        create mode 100644 README.md
 
-    $ git ss
-    # On branch master
-    nothing to commit, working directory clean
-    ```
+        $ git ss
+        # On branch master
+        nothing to commit, working directory clean
+        ```
 
     `git commit`将放入缓存区的文件提交到Git仓库中纳入版本管理中.
 
     - ### 修改已提交文件
   
-    ```
-    $ echo "  Git Is Distributed VCS." >> README.md
+        ```
+        $ echo "  Git Is Distributed VCS." >> README.md
 
-    $ git ss
-    # On branch master
-    # Changes not staged for commit:
-    #   (use "git add <file>..." to update what will be committed)
-    #   (use "git checkout -- <file>..." to discard changes in working directory)
-    #
-    #       modified:   README.md
-    #
-    no changes added to commit (use "git add" and/or "git commit -a")
-    ```
+        $ git ss
+        # On branch master
+        # Changes not staged for commit:
+        #   (use "git add <file>..." to update what will be committed)
+        #   (use "git checkout -- <file>..." to discard changes in working directory)
+        #
+        #       modified:   README.md
+        #
+        no changes added to commit (use "git add" and/or "git commit -a")
+        ```
 
-    修改已提交的文件,使用`git status`查看状态,说明这个提交的文件内容发生变化,但是还没有放入暂存区,需要使用`git add`命令将已跟踪被修改文件放入暂存区,为下次提交做准备.
+        修改已提交的文件,使用`git status`查看状态,说明这个提交的文件内容发生变化,但是还没有放入暂存区,需要使用`git add`命令将已跟踪被修改文件放入暂存区,为下次提交做准备.
 
-    ```
-    $ git add README.md
-    $ echo "  Git Was Created By Liuns Torvalds In 2005." >> README.md
+        ```
+        $ git add README.md
+        $ echo "  Git Was Created By Liuns Torvalds In 2005." >> README.md
 
-    $ git ss
-    # On branch master
-    # Changes to be committed:
-    #   (use "git reset HEAD <file>..." to unstage)
-    #
-    #       modified:   README.md
-    #
-    # Changes not staged for commit:
-    #   (use "git add <file>..." to update what will be committed)
-    #   (use "git checkout -- <file>..." to discard changes in working directory)
-    #
-    #       modified:   README.md
-    ```
-    
-    如果在README.md文件再添加一些内容,使用`git status`命令查看状态,发现README.md文件出现在了暂存区和非暂存区.`git add`命令其实将当时一个版本存入暂存区.当你`git commit`其实只是将暂存区的文件提交到Git仓库中.
+        $ git ss
+        # On branch master
+        # Changes to be committed:
+        #   (use "git reset HEAD <file>..." to unstage)
+        #
+        #       modified:   README.md
+        #
+        # Changes not staged for commit:
+        #   (use "git add <file>..." to update what will be committed)
+        #   (use "git checkout -- <file>..." to discard changes in working directory)
+        #
+        #       modified:   README.md
+        ```
+        
+        如果在README.md文件再添加一些内容,使用`git status`命令查看状态,发现README.md文件出现在了暂存区和非暂存区.`git add`命令其实将当时一个版本存入暂存区.当你`git commit`其实只是将暂存区的文件提交到Git仓库中.
 
     - ### 简短状态
 
-    ```
-    $ touch cstdlib.so
-    $ touch .gitignore
-    $ git add .gitignore
+        ```
+        $ touch cstdlib.so
+        $ touch .gitignore
+        $ git add .gitignore
 
-    $ git ss -s
-    A  .gitignore
-    MM README.md
-    ?? cstdlib.so
+        $ git ss -s
+        A  .gitignore
+        MM README.md
+        ?? cstdlib.so
 
-    $ echo "*.so" >> .gitignore
-    $ git ss -s
-    AM .gitignore
-    MM README.md
-    ```
+        $ echo "*.so" >> .gitignore
+        $ git ss -s
+        AM .gitignore
+        MM README.md
+        ```
 
-    又创建了两个文件,将`.gitignore`文件加入了暂存区.使用`git status -s`命令可以看到左侧列出文件的状态.`M`代表文件有修改,`A`代表文件添加到暂存区,`??`代表文件没有被跟踪.右边的`M`代表文件修改还有没加入暂存区,左边`M`代表文件文件修改了并放入了暂存区.
+        又创建了两个文件,将`.gitignore`文件加入了暂存区.使用`git status -s`命令可以看到左侧列出文件的状态.`M`代表文件有修改,`A`代表文件添加到暂存区,`??`代表文件没有被跟踪.右边的`M`代表文件修改还有没加入暂存区,左边`M`代表文件文件修改了并放入了暂存区.
+
+        </details>
 
     - ### 忽略文件
   
@@ -292,59 +292,73 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
     - ### 查看修改了什么
 
-    如果两个文件相似度很高,那么上下文格式的diff,将显示大量重复的内容,很浪费空间.1990年,GNU diff率先推出了"合并格式"的diff,将f1和f2的上下文合并在一起显示.
-  
-    ```
-    # 使用编辑器将第一行basic首字母大写
-    $ git diff
-    diff --git a/README.md b/README.md
-    index d61d399..9170b16 100644
-    --- a/README.md
-    +++ b/README.md
-    @@ -1,2 +1,3 @@
-    -# Git basic
-    +# Git Basic
-    Git Is Distributed VCS.
-    +  Git Was Created By Liuns Torvalds In 2005.
-    ```
+        如果两个文件相似度很高,那么上下文格式的diff,将显示大量重复的内容,很浪费空间.1990年,GNU diff率先推出了"合并格式"的diff,将f1和f2的上下文合并在一起显示.
+    
+        ```
+        # 使用编辑器将第一行basic首字母大写
+        $ git diff
+        diff --git a/README.md b/README.md
+        index d61d399..9170b16 100644
+        --- a/README.md
+        +++ b/README.md
+        @@ -1,2 +1,3 @@
+        -# Git basic
+        +# Git Basic
+        Git Is Distributed VCS.
+        +  Git Was Created By Liuns Torvalds In 2005.
+        ```
 
-    此命令比较的是工作目录中当前文件和暂存区域快照之间的差异,也就是修改之后还没有暂存起来的变化内容.
+        此命令比较的是工作目录中当前文件和暂存区域快照之间的差异,也就是修改之后还没有暂存起来的变化内容.
 
-    `index d61d399..9170b16 100644` 表示两个版本hash值,
-    前面的是缓存区,后面是工作目录.
+        `index d61d399..9170b16 100644` 表示两个版本hash值,
+        前面的是缓存区,后面是工作目录.
 
-    `--- a/README.md +++b/README.md` 表示`---`表示变动前文件,`+++`表示变动后文件.
+        `--- a/README.md +++b/README.md` 表示`---`表示变动前文件,`+++`表示变动后文件.
 
-    `@@ -1,2 +1,3 @@` `@@`是收尾标记, `-1,2` 表示变动前文件从第一行开始后的两行内容. `+1,3` 表示变动后文件从第一行开始后的3行内容.
+        `@@ -1,2 +1,3 @@` `@@`是收尾标记, `-1,2` 表示变动前文件从第一行开始后的两行内容. `+1,3` 表示变动后文件从第一行开始后的3行内容.
 
-    剩余内容为变更内容,前面带`-`号的代表变动前文件内容.前面带`+`号的代表变动后文件内容.
+        剩余内容为变更内容,前面带`-`号的代表变动前文件内容.前面带`+`号的代表变动后文件内容.
 
-    <div align="center"><img src="./asset/example-diff.jpg" width="80%"></div>
+        <div align="left"><img src="./asset/example-diff.jpg" width="80%"></div>
 
-    要查看已暂存的将要添加到下次提交里的内容,使用`--cached`
+        要查看已暂存的将要添加到下次提交里的内容,使用`--cached`
 
-    ```
-    $ git diff --cached
-    ```
+        ```
+        $ git diff --cached
+        ```
 
-    要查看工作区与最新版本库的差异 
+        要查看工作区与最新版本库的差异 
 
-    ```
-    $ git diff HEAD
-    ```
+        ```
+        $ git diff HEAD
+        ```
 
-    要查看最后两次提交的差异,`HEAD`表示当前版本,`HEAD^`表示上一版本 ,`HEAD^^`表示上上一版本.`HEAD~3`表示上上上一版本.
+        要查看最后两次提交的差异,`HEAD`表示当前版本,`HEAD^`表示上一版本 ,`HEAD^^`表示上上一版本.`HEAD~3`表示上上上一版本.
 
-    ```
-    $ git diff HEAD^ [-- file]
-    ```
+        ```
+        $ git diff HEAD^ [-- file]
+        ```
 
+    - ### 查看历史
 
+        `git log`
 
+        常用参数:
+        * -p: 显示每个版本之间的差异
+        * --stat: 显示更行的文件修改统计信息
+        * --graph: 显示ASCII图形表示的分支合并历史
+        * --pretty: 使用其他显示历史提交信息.oneline,short,full,fuller,format. 
 
-<!--
-    </details>
--->
+        ```
+        $ git log --pretty=short -stat
+        ```
 
+# 分支
+
+# 远程仓库
+
+# Git内部概念
+
+# 撤销修改
     
 
