@@ -390,6 +390,70 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
     我们再提交一个更改,这时项目的提交历史产生了分叉,我们可以在不同的分支切换工作,并在合适时机把他们合并起来.
 
+  - ## 分支合并
+
+    我们将会展示一个简单分支创建和合并的例子,这个在平时工作中会经常遇到类似的工作流程.
+
+    1. 假设我们有一个pintf("hello world")的程序
+    2. 现在需要实现一个`issue`在下一行打印一行"hello git"
+    3. 就在完成`issue`这个需求的过程中需要修补一个很严重的bug.需要将`master`分支上的"hello world"改成首字母大写.
+    4. 为了这个紧急的任务建立了一个新的分支,完成任务并且测试.
+    5. 然后合并这个修改分支到`master`
+    6. 完成修补之后切换回`issue`分支继续新需求的开发.
+
+    </br>
+
+    <div align="center"><img src="./asset/merge_branch_create_issue.jpg" width="80%"></div>
+
+    我们开始在`master`分支上,创建一个issue分支并且切换过去,在issue分支中完善新的内容.
+
+    ```
+    $cat hello.cpp
+    #include<cstdio>
+
+    int main(){
+        printf("hello world!");
+    }
+
+    $ git checkout -b issue
+    Switched to a new branch 'issue'
+
+    # edit hello.cpp add printf("hello git!"); next line
+
+    $ git ci -a -m 'add new line'
+    [issue 995a1fb] add new line
+    1 file changed, 1 insertion(+)
+    ```
+
+    <div align="center"><img src="./asset/merge_branch_create_hotfix.jpg" width="80%"></div>
+
+    此时接到通知需要修改`master`分支上的一个紧急bug.在切换之前确保工作区和暂存区已经都提交了,因为切换分支的时候会将工作区和暂存区覆盖掉.
+
+    ```
+    $ git checkout master
+    $ git checkout -b hotfix
+
+    # edit hello.cpp changed 4 line printf("Hello World!");
+
+    $ git ci -a -m 'fix bug'
+    ```
+
+    <div align="center"><img src="./asset/merge_branch_merge_hotfix.jpg" width="80%"></div>
+
+    当`hotfix`分支内容测试没有问题之后,就可以合并到`master`部署上线了
+
+    ```
+    $ git co master
+    $ git merge hotfix
+    Updating 14d54f9..119d850
+    Fast-forward
+    hello.cpp | 2 +-
+    1 file changed, 1 insertion(+), 1 deletion(-)
+
+    ```
+
+
+    
 
 # 远程仓库
 
