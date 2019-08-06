@@ -355,6 +355,42 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
 # 分支
 
+
+  - ## 分支简介
+
+    用分支意味着你可以把你的工作从开发主线上分离开来,以免影响开发主线.
+
+    <div align="center"><img src="./asset/one_commit.jpg" width="80%"></div>
+
+    当使用`git commit`进行提交操作时,Git会先计算每一个子目录的校验和,然后在Git仓库中这些校验和保存为树对象.树对象存储该目录下所有文件的校验值,然后Git便会创建一个提交对象,它包含指向这个树对象的指针.Git就可以在需要的时候重现此次保存的快照.
+
+    <div align="center"><img src="./asset/three_commit.jpg" width="80%"></div>
+
+    再做些修改后再次提交,每次产生的提交对象会包含一个指向上次提交对象的指针.
+
+    Git的分支其实本质是指向提交对象的可变指针.Git默认分支名字是`master`在多次提交操作之后,你其实已经有一个指向最后那个提交对象的master分支.它会在每次的提交操作中自动向前移动.
+
+
+    <div align="center"><img src="./asset/create_branch_head_master.jpg" width="80%"></div>
+
+    我们创建了开始创建一个`testing`分支.然后Git怎么知道自己在那个分支上呢?通过`HEAD`特殊指针,它指向当前所在的本地分支.
+
+
+    <div align="center"><img src="./asset/create_branch_head_testing.jpg" width="80%"></div>
+
+    我们创建了一个分支,`HEAD`还指向`master`,只有切换分支之后才能指向我们新的分支.
+
+    <div align="center"><img src="./asset/create_branch_testing_commit.jpg" width="80%"></div>
+
+    当我们在`testing`分支再提交一次内容时,`HEAD`随着提交也向前移动.但是master还是在原来分支没有动.
+
+    <div align="center"><img src="./asset/create_branch_master_commit.jpg" width="80%"></div>
+
+    当使用`git checkout`命令时,首先将`HEAD`指向`master`,然后将工作目录恢复成`master`分支所指向的快照内容.
+
+    我们再提交一个更改,这时项目的提交历史产生了分叉,我们可以在不同的分支切换工作,并在合适时机把他们合并起来.
+
+
 # 远程仓库
 
 # Git内部概念
