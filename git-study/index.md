@@ -290,6 +290,57 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
         doc/**/*.pdf
         ```
 
+    - ### 查看修改了什么
+
+    如果两个文件相似度很高,那么上下文格式的diff,将显示大量重复的内容,很浪费空间.1990年,GNU diff率先推出了"合并格式"的diff,将f1和f2的上下文合并在一起显示.
+  
+    ```
+    # 使用编辑器将第一行basic首字母大写
+    $ git diff
+    diff --git a/README.md b/README.md
+    index d61d399..9170b16 100644
+    --- a/README.md
+    +++ b/README.md
+    @@ -1,2 +1,3 @@
+    -# Git basic
+    +# Git Basic
+    Git Is Distributed VCS.
+    +  Git Was Created By Liuns Torvalds In 2005.
+    ```
+
+    此命令比较的是工作目录中当前文件和暂存区域快照之间的差异,也就是修改之后还没有暂存起来的变化内容.
+
+    `index d61d399..9170b16 100644` 表示两个版本hash值,
+    前面的是缓存区,后面是工作目录.
+
+    `--- a/README.md +++b/README.md` 表示`---`表示变动前文件,`+++`表示变动后文件.
+
+    `@@ -1,2 +1,3 @@` `@@`是收尾标记, `-1,2` 表示变动前文件从第一行开始后的两行内容. `+1,3` 表示变动后文件从第一行开始后的3行内容.
+
+    剩余内容为变更内容,前面带`-`号的代表变动前文件内容.前面带`+`号的代表变动后文件内容.
+
+    <div align="center"><img src="./asset/example-diff.jpg" width="80%"></div>
+
+    要查看已暂存的将要添加到下次提交里的内容,使用`--cached`
+
+    ```
+    $ git diff --cached
+    ```
+
+    要查看工作区与最新版本库的差异 
+
+    ```
+    $ git diff HEAD
+    ```
+
+    要查看最后两次提交的差异,`HEAD`表示当前版本,`HEAD^`表示上一版本 ,`HEAD^^`表示上上一版本.`HEAD~3`表示上上上一版本.
+
+    ```
+    $ git diff HEAD^ [-- file]
+    ```
+
+
+
 
 <!--
     </details>
