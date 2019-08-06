@@ -138,10 +138,162 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
         处于工作目录的文件通过`add`命令转化状态为已暂存. 已暂存的文件通过`commit`命令转化为已提交状态. 编辑以提交或者暂存区的文件,其状态转化为已修改.
 
+<!--
     <details>
-    <summary>状态便跟</summary>
-    - ### 检查文件状态
+    <summary style="font-size:18px">文件状态跟踪</summary>
+-->
+
+  - ### 检查文件状态
+
+    ```
+    $ git status
+    # On branch master
+    # Initial commit
+    nothing to commit (create/copy files and use "git add" to track)
+    ```
+
+    提示工作目录很干净,没有未跟踪的文件和修改的文件.同时还显示了当前分支在`master`
+
+    ```
+    $ echo "# Git basic" > README.md
+    $ git ss
+    # On branch master
+    # Initial commit
+    # Untracked files:
+    #   (use "git add <file>..." to include in what will be committed)
+    #
+    #       README.md
+    nothing added to commit but untracked files present (use "git add" to track)
+    ```
+
+    我们新增一个`README.md`文件,然后使用状态查看命令.然后文件出现在未跟踪的文件中.需要显示的表明我想跟踪它之后才会纳入跟踪返回. 由于我们编译程序会产生一些二进制文件,不是出现在我们工作目录中的文件就会被跟踪的.
+
+    - ### 跟踪文件
+
+    ```
+    $ git add README.md
+    $ git ss
+    # On branch master
+    # Initial commit
+    # Changes to be committed:
+    #   (use "git rm --cached <file>..." to unstage)
+    #
+    #       new file:   README.md
+    ```
+
+    `git add`命令将指定的文件纳入跟踪,将其放入缓存区.
+
+    - ### 提交更新
+  
+    ```
+    $ git commit -m 'first commit add readme file'
+    [master (root-commit) 7702aa7] first commit add readme file
+    1 file changed, 1 insertion(+)
+    create mode 100644 README.md
+
+    $ git ss
+    # On branch master
+    nothing to commit, working directory clean
+    ```
+
+    `git commit`将放入缓存区的文件提交到Git仓库中纳入版本管理中.
+
+    - ### 修改已提交文件
+  
+    ```
+    $ echo "  Git Is Distributed VCS." >> README.md
+
+    $ git ss
+    # On branch master
+    # Changes not staged for commit:
+    #   (use "git add <file>..." to update what will be committed)
+    #   (use "git checkout -- <file>..." to discard changes in working directory)
+    #
+    #       modified:   README.md
+    #
+    no changes added to commit (use "git add" and/or "git commit -a")
+    ```
+
+    修改已提交的文件,使用`git status`查看状态,说明这个提交的文件内容发生变化,但是还没有放入暂存区,需要使用`git add`命令将已跟踪被修改文件放入暂存区,为下次提交做准备.
+
+    ```
+    $ git add README.md
+    $ echo "  Git Was Created By Liuns Torvalds In 2005." >> README.md
+
+    $ git ss
+    # On branch master
+    # Changes to be committed:
+    #   (use "git reset HEAD <file>..." to unstage)
+    #
+    #       modified:   README.md
+    #
+    # Changes not staged for commit:
+    #   (use "git add <file>..." to update what will be committed)
+    #   (use "git checkout -- <file>..." to discard changes in working directory)
+    #
+    #       modified:   README.md
+    ```
+    
+    如果在README.md文件再添加一些内容,使用`git status`命令查看状态,发现README.md文件出现在了暂存区和非暂存区.`git add`命令其实将当时一个版本存入暂存区.当你`git commit`其实只是将暂存区的文件提交到Git仓库中.
+
+    - ### 简短状态
+
+    ```
+    $ touch cstdlib.so
+    $ touch .gitignore
+    $ git add .gitignore
+
+    $ git ss -s
+    A  .gitignore
+    MM README.md
+    ?? cstdlib.so
+
+    $ echo "*.so" >> .gitignore
+    $ git ss -s
+    AM .gitignore
+    MM README.md
+    ```
+
+    又创建了两个文件,将`.gitignore`文件加入了暂存区.使用`git status -s`命令可以看到左侧列出文件的状态.`M`代表文件有修改,`A`代表文件添加到暂存区,`??`代表文件没有被跟踪.右边的`M`代表文件修改还有没加入暂存区,左边`M`代表文件文件修改了并放入了暂存区.
+
+    - ### 忽略文件
+  
+        有时候我们有些文件不需要加入Git版本管理.像上面例子中我们往`.gitignore`写入带通配符的字符之后,`git status`就忽略了满足条件的文件.
+
+        * 所有空行或者#开头的都将忽略.
+        * 使用glob模式匹配,glob是shell使用的路径匹配符,类似与正则.
+        * *:匹配路径中的0个或者多个文件.
+        * ?:匹配一个字符.
+        * [...]:匹配一系列字符.[abc]匹配abc中任意一个.[a-z],[0-9]范围匹配.
+        * **:可匹配0个或者多个文件夹.
+        * !:排除文件.
+        * /:以/开头可以防止递归,以/结尾可以匹配指定目录.
+
+
+        ```
+        # no .a files
+        *.a
+
+        # but do track lib.a, even though you're ignoring .a files above
+        !lib.a
+
+        # only ignore the TODO file in the current directory, not subdir/TODO
+        /TODO
+
+        # ignore all files in the build/ directory
+        build/
+
+        # ignore doc/notes.txt, but not doc/server/arch.txt
+        doc/*.txt
+
+        # ignore all .pdf files in the doc/ directory
+        doc/**/*.pdf
+        ```
+
+
+<!--
     </details>
+-->
 
     
 
