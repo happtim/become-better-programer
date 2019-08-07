@@ -358,11 +358,12 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 # 分支
 
 
-  - ## 分支简介
+- ## 分支简介
 
     用分支意味着你可以把你的工作从开发主线上分离开来,以免影响开发主线.
 
     ```
+    $ git branch branchname 从当前快照创建一个分支
     $ git branch 查看已有分支和当前分支
     $ git branch -v 查看每个分支最后一次提交
     $ git branch -d branchname 删除分支 
@@ -398,7 +399,7 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
     我们再提交一个更改,这时项目的提交历史产生了分叉,我们可以在不同的分支切换工作,并在合适时机把他们合并起来.
 
-  - ## 分支合并
+- ## 分支合并
 
     我们将会展示一个简单分支创建和合并的例子,这个在平时工作中会经常遇到类似的工作流程.
 
@@ -475,7 +476,7 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
     Automatic merge failed; fix conflicts and then commit the result.
     ```
 
-  - ## 解决合并时的冲突
+- ## 解决合并时的冲突
 
     有时候合并没有那么顺利,出现在两个分支对同一部分进行修改,就如我们`master`分支修改大写,紧接着下一行增加了新的内容,Git在合并时遇见连续两行都修改了就无法自动合并了.
 
@@ -504,10 +505,154 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
     [master 441c2b4] resolve confilct
     ```
 
-    
-    
+- ## 分支使用方式
+
+  - ### 永久分支
+
+    只在`master`分支上保留完全稳定的代码.他们还有一些名为 `develop`或者`next`的平行分支,被用来做后续开发或者测试稳定性,这些分支不必保持绝对稳定,但是一旦达到稳定状态,它们就可以被合并入`master`分支了.
+
+    <div align="center"><img src="./asset/branch_workflow.jpg" width="80%"></div>
+
+  - ### 特性分支
+
+    特性分支对任何规模的项目都适用.特性分支是一种短期分支,它被用来实现单一特性或其相关工作.类似刚才分支合并例子. `issue`和`hotfix`每个分支都有他们单独的需求,当这个需求开发完成之后合并到主分支之后,该分支的使命也将完成.
 
 # 远程仓库
+
+    为了能让Git在工作上协作,我们需要引入远程仓库的概念.远程仓库是在网络中你的项目的版本库.
+
+- ## 克隆远程仓库
+
+    ```
+    $ git clone  file:///root/project local-project
+    Cloning into 'local-project'...
+    remote: Counting objects: 23, done.
+    remote: Compressing objects: 100% (18/18), done.
+    Receiving objects: 100% (23/23), 1.69 KiB | 0 bytes/s, done.
+    Resolving deltas: 100% (7/7), done.
+    remote: Total 23 (delta 7), reused 0 (delta 0)
+    ```
+
+    使用`git clone`命令克隆网络中的一个仓库,本例中使用的是本地仓库.
+
+- ## 查看远程仓库
+
+    ```
+    $ git remote
+    origin
+
+    $ git remote -v
+    origin  file:///root/project (fetch)
+    origin  file:///root/project (push)
+    ```
+
+    此时能看到`origin`,Git默认给你远程仓库起的名字.
+
+
+- ## 添加远程仓库
+
+    ```
+    $ cp -a project copy-project
+    $ git remote add other file:///root/copy-project 
+    $ git remote -v
+    origin  file:///root/project (fetch)
+    origin  file:///root/project (push)
+    copy    file:///root/copy-project (fetch)
+    copy    file:///root/copy-project (push)
+    ```
+
+    由于Git是分布式特性,所以支持可以从多个仓库拉去内容,或者将提交推送到多个仓库去.
+
+- ## 从远端抓取或者拉取
+
+    `git fetch`命令可以将远程仓库中你本地仓库还没有的数据.它只会拉去数据内容到本地仓库,不会自动合并到你当前目录中.
+
+    ```
+    # 在Project文件夹中编辑hello.cpp增加内容并提交
+    $ vi hello.cpp
+    $ git ci -a -m 'test fetch'
+    [master a9683f0] test fetch
+    1 file changed, 1 insertion(+)
+
+    # 切换当前目录到local-project, fetch origin
+    $ git fetch origin
+    remote: Counting objects: 5, done.
+    remote: Compressing objects: 100% (3/3), done.
+    remote: Total 3 (delta 1), reused 0 (delta 0)
+    Unpacking objects: 100% (3/3), done.
+    From file:///root/project
+    441c2b4..a9683f0  master     -> origin/master
+
+    # 查看当前目录的hello.cpp还是原来内容
+    $ git merge origin/master
+    Updating 441c2b4..a9683f0
+    Fast-forward
+    hello.cpp | 1 +
+    1 file changed, 1 insertion(+)
+    ```
+
+    运行`git pull`会从初克隆的服务器上抓取数据并自动尝试合并到当前所在的分支.
+
+    ```
+    # 在Project文件夹中编辑hello.cpp增加内容并提交
+    $ git ci -a -m 'test pull'
+    [master ed9da8e] test pull
+    1 file changed, 1 insertion(+)
+
+    # 切换当前目录到local-project,执行 git pull
+    $ git pull
+    remote: Counting objects: 5, done.
+    remote: Compressing objects: 100% (3/3), done.
+    remote: Total 3 (delta 2), reused 0 (delta 0)
+    Unpacking objects: 100% (3/3), done.
+    From file:///root/project
+    a9683f0..ed9da8e  master     -> origin/master
+    Updating a9683f0..ed9da8e
+    Fast-forward
+    hello.cpp | 1 +
+    1 file changed, 1 insertion(+)
+
+    # 观察 hello.cpp文件内容
+    ```
+
+- ## 推送到远程仓库
+
+    ```
+    git push [remote-name] [branch-name]
+
+    $ git push origin master
+    ```
+
+    只有当你有所克隆服务器的写入权限,并且之前没有人推送过时,这条命令才能生效. 当你和其他人在同一时间克隆,他们先推送到上游然后你再推送到上游,你的推送就会毫无疑问地被拒绝.你必须先将他们的工作拉取下来并将其合并进你的工作后才能推送.
+
+- ## 查看某个远程仓库
+  
+    ```
+    git remote show [remote-name]
+    ```
+
+    它会告诉你远远程仓库当前的分支为`issue`,远程仓库有那些分支.
+    `git pull`那些分支,`git push`那些分支. 
+
+    ```
+    $ git co -b issue origin/issue
+    * remote origin
+    Fetch URL: file:///root/project
+    Push  URL: file:///root/project
+    HEAD branch: issue
+    Remote branches:
+        issue  tracked
+        master tracked
+    Local branches configured for 'git pull':
+        issue  merges with remote issue
+        master merges with remote master
+    Local refs configured for 'git push':
+        issue  pushes to issue  (up to date)
+        master pushes to master (up to date)
+    ```
+
+- ## 远程分支
+
 
 # Git内部概念
 
