@@ -82,6 +82,8 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
         git config 配置项 #查看单独配置项
         git config --list #查看所有配置
         git config --global --list #查看该用户配置
+        git config -e --global 编辑该用户的配置
+        git config -e --system 编辑系统级配置
         ```
 
         配置用户信息
@@ -360,6 +362,12 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
     用分支意味着你可以把你的工作从开发主线上分离开来,以免影响开发主线.
 
+    ```
+    $ git branch 查看已有分支和当前分支
+    $ git branch -v 查看每个分支最后一次提交
+    $ git branch -d branchname 删除分支 
+    ```
+
     <div align="center"><img src="./asset/one_commit.jpg" width="80%"></div>
 
     当使用`git commit`进行提交操作时,Git会先计算每一个子目录的校验和,然后在Git仓库中这些校验和保存为树对象.树对象存储该目录下所有文件的校验值,然后Git便会创建一个提交对象,它包含指向这个树对象的指针.Git就可以在需要的时候重现此次保存的快照.
@@ -440,7 +448,9 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
     <div align="center"><img src="./asset/merge_branch_merge_hotfix.jpg" width="80%"></div>
 
-    当`hotfix`分支内容测试没有问题之后,就可以合并到`master`部署上线了
+    当`hotfix`分支内容测试没有问题之后,就可以合并到`master`部署上线了.当我们要解决完这个任务需要切换回原来的分支完成原来的需求, `git branch -d hotfix`命令删除分支.
+
+    如果顺着一个分支走下去能够到达另一个分支,那么Git在合并两者的时候,只会简单的将指针向前推进,因为这种情况下的合并操作没有需要解决的分歧 快进(fast-forward).
 
     ```
     $ git co master
@@ -450,9 +460,51 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
     hello.cpp | 2 +-
     1 file changed, 1 insertion(+), 1 deletion(-)
 
+    $ git branch -d hotfix
     ```
 
 
+    <div align="center"><img src="./asset/merge_branch_three_merge.jpg" width="80%"></div>
+
+    假如我们已经完成了issue的功能,现在需要合并到`master`分支中,此时合并分支就和`hotfix`不太一样了.这时分支在一个更早的地方发生了分离,`master`不是`issue`的直接祖先.所以Git需要使用3个提交来完成这次的合并,一个共同祖先提交,和各个分支的头提交. 三方合并之后作为一个新的快照并且创建一个新的提交指向它,此时`C5`提交有两个父提交.
+
+    ```
+    $ git merge issue
+    Auto-merging hello.cpp
+    CONFLICT (content): Merge conflict in hello.cpp
+    Automatic merge failed; fix conflicts and then commit the result.
+    ```
+
+  - ## 解决合并时的冲突
+
+    有时候合并没有那么顺利,出现在两个分支对同一部分进行修改,就如我们`master`分支修改大写,紧接着下一行增加了新的内容,Git在合并时遇见连续两行都修改了就无法自动合并了.
+
+    ```
+    int main(){
+    4 <<<<<<< HEAD
+    5     printf("Hello World!");
+    6 =======
+    7     printf("hello world!");
+    8     printf("hello git!");
+    9 >>>>>>> issue
+    10 }
+    ```
+
+    `<<<<<<<<< HEAD` 所分割的版本为当前分支版本,对于这次合并也就是`master`分支,`>>>>>>>> issue`部分就是被合并的分支. 为了解决冲突,我们必须使用`==========`中的一部分或者自行保留删除内容.
+
+    如果你修改成满意的结果,就可以将这次冲突文件提交来完成合并并提交.
+
+    ```
+    3 int main(){
+    4     printf("Hello World!");
+    5     printf("hello git!");
+    6 }
+
+    $ git ci -a -m 'resolve confilct'
+    [master 441c2b4] resolve confilct
+    ```
+
+    
     
 
 # 远程仓库
