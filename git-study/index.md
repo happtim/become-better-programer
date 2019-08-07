@@ -552,13 +552,13 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 - ## 添加远程仓库
 
     ```
-    $ cp -a project copy-project
-    $ git remote add other file:///root/copy-project 
+    $ cp -a project someone-project
+    $ git remote add other file:///root/someone-project 
     $ git remote -v
     origin  file:///root/project (fetch)
     origin  file:///root/project (push)
-    copy    file:///root/copy-project (fetch)
-    copy    file:///root/copy-project (push)
+    copy    file:///root/someone-project (fetch)
+    copy    file:///root/someone-project (push)
     ```
 
     由于Git是分布式特性,所以支持可以从多个仓库拉去内容,或者将提交推送到多个仓库去.
@@ -652,6 +652,74 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
     ```
 
 - ## 远程分支
+
+    远程引用是对远程仓库的引用(指针),包括分支,标签等等.
+
+    远程分支是远程仓库分支的引用.它们是不能移动的本地引用,当你做任何网络通信操作时,它们会自动移动.远程跟踪分支像是你上次连接到远程仓库时,那些分支所处状态的书签.
+
+
+    远程分支使用`(remote)/(branch)`形式表示,如果你想看你最后一次与远程仓库origin通信时`master`分支状态,可以查看`origin/master`分支.
+
+    <div align="center"><img src="./asset/remote_branch_clone.jpg" width="80%"></div>
+
+    当我们local-project第一次克隆仓库时,远程分支`origin-master`和本地`master`分支都指向`C1`.
+
+    <div align="center"><img src="./asset/remote_branch_origin_master.jpg" width="80%"></div>
+
+    如果你在本地`master`分支开发了`C4 C5`内容.与此同时,其他人将他们修改`C2 C3`推送至服务器.那么你远程`origin/master`分支将不会继续前进.只要你不和服务器连接,那么远程分支就不会动.
+
+    <div align="center"><img src="./asset/remote_branch_fetch.jpg" width="80%"></div>
+
+    如果要同步别人的工作内容,使用`git fetch origin`,从远程服务器抓取本地没有的数据,移动`origin/master`到更行后的位置.然后可以是使用`git merge`命令将`origin/master`合并到本地`master`又是一典型的三方合并.
+
+- ## 跟踪分支
+
+    从一个远程跟踪分支检出一个本地分支会自动创建跟踪分支, 跟踪分支是与远程分支有联系的分支.如果在一个跟踪分支上输入git pull,Git 能自动地识别去哪个服务器上抓取,合并到哪个分支.
+
+    当克隆一个仓库时,它通常会自动地创建一个跟踪`origin/master`的`master`分支.可以通过如下方式创建跟踪分支.
+    
+    ```
+    git checkout -b [branch] [remotename]/[branch]
+    git checkout --track [remotename]/[branch]
+    ```
+
+    查看当前仓库设置的所有跟踪分支,可以使用:
+
+    ```
+    # 复制项目
+    cp -a local-project twice-project
+
+    #twice-project 项目编辑文件并push
+    $ vi hello.cpp
+    $ git ci -a -m 'add something'
+    $ git push origin issue
+
+    #local-project 项目fetch orgin
+    $ git fetch origin 
+    remote: Counting objects: 5, done.
+    remote: Compressing objects: 100% (3/3), done.
+    remote: Total 3 (delta 2), reused 0 (delta 0)
+    Unpacking objects: 100% (3/3), done.
+    From file:///root/project
+    c68f91b..35cae88  issue      -> origin/issue
+
+
+    $ git branch -vv
+    * issue  c68f91b [origin/issue] add black line
+    master ed9da8e [origin/master] test pull
+    issue  292a705 [origin/issue: ahead 1, behind 1] add some line
+    ```
+
+    远端分支后有`ahead 1` 和 `behind 1` 意为这本地分支还有1个提交没有push,远端分支还有一个分支没有pull下来.
+
+
+- ## 删除远端分支
+
+    假设你已经通过远程分支做完所有的工作了,也就是说你和你的协作者已经完成了一个特性并且将其合并到了远程仓库的`master`分支.我们就可以将远端的特性分支删除
+
+    ```
+    git push origin --delete [branchname]
+    ```
 
 
 # Git内部概念
