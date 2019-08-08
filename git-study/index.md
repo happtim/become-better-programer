@@ -759,7 +759,6 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
     这是 GitHub 和 GitLab 最常用的工作流程。
 
-# Git内部概念
 
 # 撤销修改
 
@@ -806,7 +805,7 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
     #
     ```
 
-  - ## 撤销文件修改
+- ## 撤销文件修改
 
     如果不想保留`hello.cpp`文件的修改还原成上一次提交的样子.
 
@@ -819,6 +818,14 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
     #
     #       new file:   a
     #
+
+    $ git reset HEAD a
+    it ss
+    # On branch issue
+    # Untracked files:
+    #   (use "git add <file>..." to include in what will be committed)
+    #
+    #       a
     ```
 
 - ## 撤销如何实现的
@@ -886,7 +893,7 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
         <div align="center"><img src="./asset/reset-soft.jpg" width="80%"></div>
 
-        `git reset`作用类似与游标在提交历史中可以任意指定位置.而`git checkout`切换分支的功能,以及将索引区文件覆盖到工作区的功能.
+        `git reset`作用类似与游标在提交历史中可以任意指定位置.而`git checkout`是切换分支的功能,将该分支最后一次提交快照覆盖掉索引区文件和工作区的功能.
 
         我们移动HEAD指针到了倒数第二个递交上.此时我们可以认为我们撤销了一次提交.因为在索引区和工作区都没有变,我们还可以继续修改文件内容.等到合适再提交.类似命令`git commit -amend`
 
@@ -898,4 +905,94 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
         <div align="center"><img src="./asset/reset-hard.jpg" width="80%"></div>
 
         `git reset --hard`做的事情比`--mixed`又多了点,将索引区和工作目录的文件全部恢复成上一个提交时的快照状态. `--hard`命令比较危险因为你所编辑的文件将会全部被覆盖.
+
+        `git checkout [--] filename`功能可以将索引区文件覆盖掉工作区. `git chekcout tree-ish [--]  filename` 将指定一次提交的文件覆盖掉索引区和工作区.
+
+
+        <div align="center"><img src="./asset/reset-filepath.jpg" width="80%"></div>
+
+        如果`git reset`后面接一个文件,只是将这个文件覆盖掉索引区.用于已加入缓存的文件删除.
+
+# Git内部概念
+
+从根本上来讲Git是一个内容寻址(content-addressable)文件系统,并在此之上提供了一个版本控制系统的用户界面.
+
+初始化一个仓库之后,会在目录下面创建一个`.git`隐藏目录,让我们看看它有什么内容.
+
+```
+$ tree
+.
+├── branches
+├── config
+├── description
+├── HEAD
+├── hooks
+│   ├── applypatch-msg.sample
+│   ├── commit-msg.sample
+│   ├── post-update.sample
+│   ├── pre-applypatch.sample
+│   ├── pre-commit.sample
+│   ├── prepare-commit-msg.sample
+│   ├── pre-push.sample
+│   ├── pre-rebase.sample
+│   └── update.sample
+├── info
+│   └── exclude
+├── objects
+│   ├── info
+│   └── pack
+└── refs
+    ├── heads
+    └── tags
+```
+
+有四个文件很重要:`HEAD`文件,`index`文件(还未创建),`objects`目录,`refs`目录.
+
+|文件|作用|
+|----|---|
+|HEAD| 文件内容指向被检出的分支|
+|index|文件的暂存信息|
+|objects|目录存储所有数据内容|
+|refs|存放分支|
+
+
+- ## Git对象
+
+    Git的核心部分是一个简单的键值对数据库(key-value data store). 你可以向该数据库插入任意类型的内容,它会返回一个键值,通过该键值可以在任意时刻再次检索(retrieve)该内容. 
+
+    ```
+    $ echo 'test content' | git hash-object -w --stdin
+    d670460b4b4aece5915caf5c68d12f560a9fe3e4
+
+    $ git hash-object -w test.txt
+    83baae61804e65cc73a7201a7252750c76066a30
+
+    $ find .git/objects/ -type f
+    .git/objects/d6/70460b4b4aece5915caf5c68d12f560a9fe3e4
+    .git/objects/83/baae61804e65cc73a7201a7252750c76066a30
+    ```
+
+    可以通过底层命令 hash-object 往Git数据库中添加数据,`-w`选项指示`hash-object`命令存储数据对象.`--stdin`选项则指示该命令从标准输入读取内容,若不指定此选项,则须在命令尾部给出待存储文件的路径.
+    
+    该命令输出一个长度为 40 个字符的校验和.这是一个 SHA-1 哈希值,将待存储的数据外加一个头部信息(header)一起做 SHA-1 校验运算而得的校验和.
+
+    ```
+    $ git cat-file -p d670460b4b4aece5915caf5c68d12f560a9fe3e4
+    test content
+
+    $ git cat-file -t d670460b4b4aece5915caf5c68d12f560a9fe3e4
+    blob
+
+    $ git cat-file -p d670460b4b4aece5915caf5c68d12f560a9fe3e4 > test.txt
+    $ cat test.txt
+    test content
+    ```
+
+    可以通过`cat-file`命令从 Git 那里取回数据,`-p`选项可指示该命令自动判断内容的类型,并为我们显示格式友好的内容. `-t`选项告诉我们保存的是什么类型数据.
+
+- ## 树对象
+
+    blob类型文件只保存文件内容并不保存文件名,tree这个类型数据就可以保存文件名及文件结构的问题.一个树对象每条记录含有一个指向数据对象或者子树对象的指针. 
+
+
 
