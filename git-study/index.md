@@ -43,6 +43,7 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
         * 2005年6月16日,Linux内核2.6.12发布,那时Git已经在维护Linux核心的源代码了.
     
 - ## Git特点
+
     - ### 记录快照而非差异
         (CVS、Subversion)将它们保存的信息看作是一组基本文件和每个文件随时间逐步累积的差异。
 
@@ -54,6 +55,7 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
 
     - ### 几乎所有操作本地执行
         在 Git 中的绝大多数操作都只需要访问本地文件和资源，一般不需要来自网络上其它计算机的信息。 如果你习惯于所有操作都有网络延时开销的集中式版本控制系统，Git 在这方面会让你感到速度之神赐给了 Git 超凡的能量。 因为你在本地磁盘上就有项目的完整历史，所以大部分操作看起来瞬间完成。
+
     - ### 保存数据完成性
         Git 中所有数据在存储前都计算校验和，然后以校验和来引用。 这意味着不可能在 Git 不知情时更改任何文件内容或目录内容。 这个功能建构在 Git 底层，是构成 Git 哲学不可或缺的部分。 若你在传送过程中丢失信息或损坏文件，Git 就能发现。
 
@@ -257,6 +259,22 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
         又创建了两个文件,将`.gitignore`文件加入了暂存区.使用`git status -s`命令可以看到左侧列出文件的状态.`M`代表文件有修改,`A`代表文件添加到暂存区,`??`代表文件没有被跟踪.右边的`M`代表文件修改还有没加入暂存区,左边`M`代表文件文件修改了并放入了暂存区.
 
         </details>
+
+    - ### 删除文件
+
+    要想从Git中移除某个文件,就必须要从已跟踪文件清单中移除,然后就可以提交.
+
+    ```
+    $ git rm aa
+    rm 'aa'
+    $ git ss
+    # On branch issue
+    # Changes to be committed:
+    #   (use "git reset HEAD <file>..." to unstage)
+    #
+    #       deleted:    aa
+    #
+    ```
 
     - ### 忽略文件
   
@@ -721,9 +739,163 @@ Git是一个分布式版本控制系统. 版本控制是一种记录一个或多
     git push origin --delete [branchname]
     ```
 
+- ## 分布式协作工作流程
+
+    - ### 集中式
+
+    <div align="center"><img src="./asset/repository-workflow-center.jpg" width="80%"></div>
+
+    一个中心仓库,可以接受代码,所有人将自己的工作与之同步.
+
+    如果两个开发者从中心仓库克隆代码下来,同时作了一些修改,那么只有第一个开发者可以顺利地把数据推送回共享服务器. 第二个开发者在推送修改之前,必须先将第一个人的工作合并进来,这样才不会覆盖第一个人的修改.
+
+    - ### 集成管理者
+
+    <div align="center"><img src="./asset/repository-workflow-hub.jpg" width="80%"></div>
+
+    Git 允许多个远程仓库存在,每个开发者拥有自己仓库的写权限和其他所有人仓库的读权限.这种情形下通常会有个代表"官方"项目的权威的仓库.要为这个项目做贡献,你需要从该项目克隆出一个自己的公开仓库,然后将自己的修改推送上去.
+    
+    接着你可以请求官方仓库的维护者拉取更新合并到主项目.维护者可以将你的仓库作为远程仓库添加进来,在本地测试你的变更,将其合并入他们的分支并推送回官方仓库.
+
+    这是 GitHub 和 GitLab 最常用的工作流程。
 
 # Git内部概念
 
 # 撤销修改
+
+- ## 重置最后一次提交
+
+    ```
+    git commit --amend
+    ```
+    有时候我们提交完了才发现漏掉了几个文件没有添加，或者提交信息写错了。
     
+- ## 取消暂存的文件
+
+    假设你已经修改了两个文件并且想要将它们作为两次独立的修改提交,但是却意外地输入了 git add * 暂存了它们两个.
+
+    ```
+    $ touch a
+    $ vi hello.cpp
+    $ git add *
+    $ git ss
+    # On branch issue
+    # Changes to be committed:
+    #   (use "git reset HEAD <file>..." to unstage)
+    #
+    #       new file:   a
+    #       modified:   hello.cpp
+    #
+
+    $ git reset HEAD hello.cpp
+    Unstaged changes after reset:
+    M       hello.cpp
+
+    $ git ss
+    # On branch issue
+    # Changes to be committed:
+    #   (use "git reset HEAD <file>..." to unstage)
+    #
+    #       new file:   a
+    #
+    # Changes not staged for commit:
+    #   (use "git add <file>..." to update what will be committed)
+    #   (use "git checkout -- <file>..." to discard changes in working directory)
+    #
+    #       modified:   hello.cpp
+    #
+    ```
+
+  - ## 撤销文件修改
+
+    如果不想保留`hello.cpp`文件的修改还原成上一次提交的样子.
+
+    ```
+    $ git checkout -- hello.cpp
+    $ git ss
+    # On branch issue
+    # Changes to be committed:
+    #   (use "git reset HEAD <file>..." to unstage)
+    #
+    #       new file:   a
+    #
+    ```
+
+- ## 撤销如何实现的
+
+    Git 内部管理者如下三种文件结构
+
+    |结构|用途|
+    |---|-----|
+    |HEAD|上一次提交的快照, 下一次提交的父节点| 
+    |Index|预期的下次提交的快照| 
+    |工作区| 添加修改文件区域|
+
+    - ### HEAD
+
+        HEAD 是当前分支引用的指针,它总是指向该分支上的最后一次提交快照. 这表示 HEAD 将是下一次提交的父结点.
+
+    - ### 索引(Index)
+
+        索引是你的预期的下一次提交. 我们也会将这个概念引用为 Git 的"暂存区域",这就是当你运行`git commit`时 Git 看起来的样子.使用`git ls-files -s` 底层命令来查看当前索引.
+
+        ```
+        $ git ls-files -s
+        100644 140f8cf80f2c88e66c141b1c4074b92b29fde4e6 0       .gitignore
+        100644 9170b1646a6e4274f16ebe8d0528f114cd62acd2 0       README.md
+        100644 e69de29bb2d1d6434b8b29ae775ad8c2e48c5391 0       a
+        100644 e69de29bb2d1d6434b8b29ae775ad8c2e48c5391 0       dir/a
+        100644 67a59c0024a2f798b404711d2d1c4d1952b6d5bf 0       hello.cpp
+        ```
+
+    - ### 工作目录
+
+        在你将修改提交到暂存区并记录到历史之前,工作区文件可以随意更改。
+
+    
+    - ### 工作流程
+
+        下面使用提交一个文件的过程来演示文件在三个文件结构之间的状态变化.
+
+        <div align="center"><img src="./asset/reset-init.jpg" width="80%"></div>
+
+        假设我们初始化一个文件夹,里面有一个文件的V1版本.
+
+        <div align="center"><img src="./asset/reset-add.jpg" width="80%"></div>
+
+        使用`git add`命令将该文件记录在暂存区中.
+
+        <div align="center"><img src="./asset/reset-commit.jpg" width="80%"></div>
+
+        使用`git commit`命令,它会获取索引中的内容把它保存成一个快照.然后创建一个提交指向这个快照,最够跟新`master`指向这次提交.
+
+        <div align="center"><img src="./asset/reset-edit-file-v1.jpg" width="80%"></div>
+
+        我们在工作区目录修改了file.txt 现在它变成了v2版本了.
+        此时使用`git status`会显示`Changes not staged for commit`因为工作区的内容和暂存区不一致.
+
+        <div align="center"><img src="./asset/reset-add-file-v2.jpg" width="80%"></div>
+
+        我们将v2版本暂存起来.
+        此时使用`git status`会显示`Changes to be committed`因为暂存区的文件和HEAD指向的最后一次提交快照不同.
+
+        <div align="center"><img src="./asset/reset-commit-file-v2.jpg" width="80%"></div>
+
+        我们将v2版本提交,同样的将索引区的文件创建一个快照.再创建一个提交对象指向这个快照.这个提交对象的父节点就是上一次提交C0. `master`分支向前移动到这次提交上.
+
+
+        <div align="center"><img src="./asset/reset-soft.jpg" width="80%"></div>
+
+        `git reset`作用类似与游标在提交历史中可以任意指定位置.而`git checkout`切换分支的功能,以及将索引区文件覆盖到工作区的功能.
+
+        我们移动HEAD指针到了倒数第二个递交上.此时我们可以认为我们撤销了一次提交.因为在索引区和工作区都没有变,我们还可以继续修改文件内容.等到合适再提交.类似命令`git commit -amend`
+
+        <div align="center"><img src="./asset/reset-mixed.jpg" width="80%"></div>
+
+        `git reset --mixed`做的事情比`--soft`又多了点,他将索引区的文件也恢复成上一个提交快照时的场景. 也是撤销了一次提交,但是是回到了`git add`之前的状态,所有文件都在工作目录中.
+
+
+        <div align="center"><img src="./asset/reset-hard.jpg" width="80%"></div>
+
+        `git reset --hard`做的事情比`--mixed`又多了点,将索引区和工作目录的文件全部恢复成上一个提交时的快照状态. `--hard`命令比较危险因为你所编辑的文件将会全部被覆盖.
 
