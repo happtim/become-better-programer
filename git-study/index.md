@@ -964,7 +964,8 @@ $ tree
     $ echo 'test content' | git hash-object -w --stdin
     d670460b4b4aece5915caf5c68d12f560a9fe3e4
 
-    $ git hash-object -w test.txt
+    $ echo "version 1" > file.txt
+    $ git hash-object -w file.txt
     83baae61804e65cc73a7201a7252750c76066a30
 
     $ find .git/objects/ -type f
@@ -992,7 +993,126 @@ $ tree
 
 - ## 树对象
 
-    blob类型文件只保存文件内容并不保存文件名,tree这个类型数据就可以保存文件名及文件结构的问题.一个树对象每条记录含有一个指向数据对象或者子树对象的指针. 
+    blob类型文件只保存文件内容并不保存文件名,tree这个类型数据就可以保存文件名及文件结构.一个树对象每条记录含有一个指向数据对象或者子树对象的指针. Git以一种类似于UNIX文件系统的方式存储内容.
 
+
+    ```
+    $ git update-index --add  --cacheinfo 100644 d670460b4b4aece5915caf5c68d12f560a9fe3e4 test.txt
+
+    $ git update-index --add file.txt
+
+    $ git write-tree
+    7f89976752eb8babe8bdc67fbb484225a3a00707
+
+    $ git cat-file -t 7f89976
+    tree
+
+    $ git cat-file -p 7f89976
+    100644 blob 83baae61804e65cc73a7201a7252750c76066a30    file.txt
+    100644 blob d670460b4b4aece5915caf5c68d12f560a9fe3e4    test.txt
+    ```
+
+    Git根据某一时刻暂存区(即index)所表示的状态创建并记录一个对应的树对象.
+
+    为创建一个树对象,首先需要通过暂存一些文件来创建一个暂存区. 可以通过底层命令 update-index 为一个单独文件.`--add`选项因为此前该文件并不在暂存区中,`--cacheinfo`选项,因为将要添加的文件位于 Git 数据库中(.git/objects/下),而不是位于当前目录下.我们指定的文件模式为`100644`表明这是一个普通文件.
+
+    可以通过`write-tree`命令将暂存区内容写入一个树对象.
+
+
+    ```
+    $ echo 'version 2' > file.txt
+    $ git update-index --add file.txt
+
+    $ git ls-files -s
+    100644 1f7a7a472abf3dd9643fd615f6da379c4acb3e3a 0       file.txt
+    100644 d670460b4b4aece5915caf5c68d12f560a9fe3e4 0       test.txt
+
+    $ git write-tree
+    be27b0783b1cea0c86cad05c6ddf75f6aab1480c
+    ```
+
+    我们继续变更文件,将file.txt修改成第二个版本.并把他也写入暂存区.并也用创建一个树对象将此时目录结构保存起来.
+
+    ```
+    $ mkdir new_dir
+    $ echo "new file" > new_dir/new.txt
+
+    $ git update-index --add new_dir/new.txt
+
+    $ git write-tree
+    df8f515415dd460f3469c77a02177fba9128f5fd
+
+    $ git cat-file -p df8f51
+    100644 blob 1f7a7a472abf3dd9643fd615f6da379c4acb3e3a    file.txt
+    040000 tree eb85079ce7fd354ffc630f4a8e2991196cb3807f    new_dir
+    100644 blob d670460b4b4aece5915caf5c68d12f560a9fe3e4    test.txt
+
+    $ git cat-file -p eb85079
+    100644 blob fa49b077972391ad58037050f2a75f74e3671e92    new.txt
+    ```
+
+    至此我们都是加入的文件进入树对象,这次我们加入一个文件夹,不需要直接加入目录,而是直接加入相对路径该文件这个数据对象就自己建立了.最后我们建立一个这样的tree数据结构.
+
+    <div align="center"><img src="./asset/internal-tree.jpg" width="80%"></div>
+
+
+- ## 提交对象
+
+    现在有了3个树对象,分别代表我们要跟踪的不同时刻的快照,但是我们不知道谁保存了这个快照,在什么时间保存的快照,以及为什么保存这个快照.提交对象就是为我们保存这些信息的.
+
+
+    ```
+    $ echo 'first commit' | git commit-tree 7f899767
+    d10e7a30e5b4fa442f27de3cdb730b1224967f91
+    $ git cat-file -p d10e7a
+    tree 7f89976752eb8babe8bdc67fbb484225a3a00707
+    author timge <gexiang.gmail.com> 1565318058 +0800
+    committer timge <gexiang.gmail.com> 1565318058 +0800
+
+    first commit
+    ```
+
+    我们通过调用`git commit-tree`命令创建一个提交对象,它需要一个指向的树对象,我们使用了第一次生成的树对象.
+
+
+    ```
+    $ echo 'second commit' | git commit-tree be27b0 -p d10e7a
+    dfab1c37626dbc1b8eb11c9c9e5bc5a5d0e13d03
+
+    $ echo 'third commit' | git commit-tree df8f515 -p dfab1c3
+    6cae830117016914edd6485bf3cdadb54529e217
+    ```
+
+    然后我们又创建了两个提交,树对象参数为对应次数生成树对象,`-p`参数为上一次提交的hash值.
+
+    ```
+    $ git log --stat 6cae83
+    commit 6cae830117016914edd6485bf3cdadb54529e217
+    Author: timge <gexiang.gmail.com>
+    Date:   Fri Aug 9 10:43:22 2019 +0800
+
+        third commit
+
+    new_dir/new.txt | 1 +
+    1 file changed, 1 insertion(+)
+
+    commit dfab1c37626dbc1b8eb11c9c9e5bc5a5d0e13d03
+    Author: timge <gexiang.gmail.com>
+    Date:   Fri Aug 9 10:42:17 2019 +0800
+
+        second commit
+
+    file.txt | 2 +-
+    1 file changed, 1 insertion(+), 1 deletion(-)
+
+    commit d10e7a30e5b4fa442f27de3cdb730b1224967f91
+    Author: timge <gexiang.gmail.com>
+    Date:   Fri Aug 9 10:34:18 2019 +0800
+
+        first commit
+    ```
+
+
+    <div align="center"><img src="./asset/internal-commit.jpg" width="80%"></div>
 
 
