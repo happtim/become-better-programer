@@ -1116,3 +1116,51 @@ $ tree
     <div align="center"><img src="./asset/internal-commit.jpg" width="80%"></div>
 
 
+- ## Git引用
+
+    我们可以使用`git log --stat 6cae83` 这样的命令来浏览完成的提交历史,为了查看历史还得记住最后一次的提交SHA-1值.这就是Git引用的作用,他给SHA-1值起一个简单的名字. 存储这样名字得目录在`.git/refs`目录下找到.
+
+    ```
+    $ echo '6cae830117016914edd6485bf3cdadb54529e217' > .git/refs/heads/master
+
+    $ git log --pretty=oneline master
+    6cae830117016914edd6485bf3cdadb54529e217 third commit
+    dfab1c37626dbc1b8eb11c9c9e5bc5a5d0e13d03 second commit
+    d10e7a30e5b4fa442f27de3cdb730b1224967f91 first commit
+
+    $ git update-ref refs/heads/test dfab1c37626dbc1b8eb11c9c9e5bc5a5d0e13d03
+
+    $ git log --pretty=oneline test
+    dfab1c37626dbc1b8eb11c9c9e5bc5a5d0e13d03 second commit
+    d10e7a30e5b4fa442f27de3cdb730b1224967f91 first commit
+    ```
+
+    我们编辑 `refs/heads/master` 指向我们最后一次提交得内容. 不过推荐使用命令去更改,`update-ref`会检查一些错误.上面两个分支建立之后就是如下结构.
+
+    <div align="center"><img src="./asset/internal-refs.jpg" width="80%"></div>
+
+    - ### HEAD 引用
+
+        当我们切换分支时,Git使用了`HEAD`文件来来记录当前在那个分支得最新提交上.
+
+        ```
+        $ cat .git/HEAD
+        ref: refs/heads/master
+
+        $ git co test
+        Switched to branch 'test'
+        $ cat .git/HEAD
+        ref: refs/heads/test
+        ```
+
+    - ### 远程分支
+
+        和本地分支引用一样,保存远程仓库中最后一次推送时分支所对应得提交位置.保存在`refs/remotes`目录中.
+
+        和本地分支最主要得区别就是,远程分支是只读的.虽然可以`checkout`远程分支,但是也是跟踪分支,不能直接将`HEAD`指向远程分支,也就不能通过`commit`来更新远程引用.
+
+
+
+
+
+
