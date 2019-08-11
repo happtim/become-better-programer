@@ -13,6 +13,12 @@
   - [查看修改](#查看修改)
   - [查看历史](#查看历史)
 
+[分支](#分支)
+  - [分支简介](#分支简介)
+  - [分支合并](#分支合并)
+  - [解决合并时的冲突](#解决合并时的冲突)
+  - [分支使用方式](#分支使用方式)
+
 # Git是什么?
 
 Git是一个分布式版本控制系统.
@@ -308,7 +314,7 @@ Git是一个分布式版本控制系统.
 
     #include <cstdio>
     int main(){
-        printf("hello git");
+        printf("hello world!\n");
     }
 
     $ g++ hello.cpp
@@ -334,7 +340,7 @@ Git是一个分布式版本控制系统.
     * 使用glob模式匹配,glob是shell使用的路径匹配符,类似与正则.
     * *:匹配路径中的0个或者多个文件.
     * ?:匹配一个字符.
-    * [...]:匹配一系列字符.[abc]匹配abc中任意一个.[a-z],[0-9]范围匹配.
+    * \[...]:匹配一系列字符.[abc]匹配abc中任意一个.[a-z],[0-9]范围匹配.
     * **:可匹配0个或者多个文件夹.
     * !:排除文件.
     * /:以/开头可以防止递归,以/结尾可以匹配指定目录.
@@ -438,31 +444,29 @@ Git是一个分布式版本控制系统.
 
     <div align="center"><img src="./asset/one_commit.jpg" width="80%"></div>
 
-    当使用`git commit`进行提交操作时,Git会先计算每一个子目录的校验和,然后在Git仓库中这些校验和保存为树对象.树对象存储该目录下所有文件的校验值,然后Git便会创建一个提交对象,它包含指向这个树对象的指针.Git就可以在需要的时候重现此次保存的快照.
+    当使用 `git commit` 进行提交操作时,Git 先创建一个树对象.树对象存储该目录下所有文件的校验值,然后 Git 创建一个提交对象,它包含指向这个树对象的指针. Git 就可以在需要的时候重现此次保存的快照.
 
     <div align="center"><img src="./asset/three_commit.jpg" width="80%"></div>
 
     再做些修改后再次提交,每次产生的提交对象会包含一个指向上次提交对象的指针.
 
-    Git的分支其实本质是指向提交对象的可变指针.Git默认分支名字是`master`在多次提交操作之后,你其实已经有一个指向最后那个提交对象的master分支.它会在每次的提交操作中自动向前移动.
-
+    Git 的分支其本质是指向提交对象的可变指针.Git 默认分支名字是 `master` 在多次提交操作之后,你其实已经有一个指向最后那个提交对象的 `master` 分支.它会在每次的提交操作中自动向前移动.
 
     <div align="center"><img src="./asset/create_branch_head_master.jpg" width="80%"></div>
 
-    我们创建了开始创建一个`testing`分支.然后Git怎么知道自己在那个分支上呢?通过`HEAD`特殊指针,它指向当前所在的本地分支.
-
+    我们创建了开始创建一个 `testing` 分支.然后 Git 怎么知道自己在那个分支上呢?通过 `HEAD` 特殊指针,它指向当前所在的本地分支.
 
     <div align="center"><img src="./asset/create_branch_head_testing.jpg" width="80%"></div>
 
-    我们创建了一个分支,`HEAD`还指向`master`,只有切换分支之后才能指向我们新的分支.
+    我们创建了一个分支, `HEAD` 还指向 `master` ,只有切换分支之后才能指向我们新的分支.
 
     <div align="center"><img src="./asset/create_branch_testing_commit.jpg" width="80%"></div>
 
-    当我们在`testing`分支再提交一次内容时,`HEAD`随着提交也向前移动.但是master还是在原来分支没有动.
+    当我们在 `testing` 分支再提交一次内容时, `HEAD` 随着提交也向前移动.但是 `master` 还是在原来分支没有动.
 
     <div align="center"><img src="./asset/create_branch_master_commit.jpg" width="80%"></div>
 
-    当使用`git checkout`命令时,首先将`HEAD`指向`master`,然后将工作目录恢复成`master`分支所指向的快照内容.
+    当使用 `git checkout` 命令时,首先将 `HEAD` 指向 `master` ,然后将工作目录恢复成 `master` 分支所指向的快照内容.
 
     我们再提交一个更改,这时项目的提交历史产生了分叉,我们可以在不同的分支切换工作,并在合适时机把他们合并起来.
 
@@ -470,31 +474,24 @@ Git是一个分布式版本控制系统.
 
     我们将会展示一个简单分支创建和合并的例子,这个在平时工作中会经常遇到类似的工作流程.
 
-    1. 假设我们有一个pintf("hello world")的程序
-    2. 现在需要实现一个`issue`在下一行打印一行"hello git"
-    3. 就在完成`issue`这个需求的过程中需要修补一个很严重的bug.需要将`master`分支上的"hello world"改成首字母大写.
+    1. 假设我们有一个 `pintf("hello world!\n")` 的程序.
+    2. 现在需要实现一个 `issue` 在下一行打印一行 `hello git`.
+    3. 就在完成 `issue` 这个需求的过程中需要修补一个很严重的bug.需要将 `master` 分支上的"hello world"改成首字母大写.
     4. 为了这个紧急的任务建立了一个新的分支,完成任务并且测试.
-    5. 然后合并这个修改分支到`master`
-    6. 完成修补之后切换回`issue`分支继续新需求的开发.
+    5. 然后合并这个修改分支到 `master`.
+    6. 完成修补之后切换回 `issue` 分支继续新需求的开发.
 
     </br>
 
     <div align="center"><img src="./asset/merge_branch_create_issue.jpg" width="80%"></div>
 
-    我们开始在`master`分支上,创建一个issue分支并且切换过去,在issue分支中完善新的内容.
+    我们开始在 `master` 分支上,创建一个 `issue` 分支并且切换过去,在 `issue` 分支中完善新的内容.
 
     ```
-    $cat hello.cpp
-    #include<cstdio>
-
-    int main(){
-        printf("hello world!");
-    }
-
     $ git checkout -b issue
     Switched to a new branch 'issue'
 
-    # edit hello.cpp add printf("hello git!"); next line
+    # edit hello.cpp add printf("hello git!\n"); next line
 
     $ git ci -a -m 'add new line'
     [issue 995a1fb] add new line
@@ -503,20 +500,20 @@ Git是一个分布式版本控制系统.
 
     <div align="center"><img src="./asset/merge_branch_create_hotfix.jpg" width="80%"></div>
 
-    此时接到通知需要修改`master`分支上的一个紧急bug.在切换之前确保工作区和暂存区已经都提交了,因为切换分支的时候会将工作区和暂存区覆盖掉.
+    此时接到通知需要修改 `master` 分支上的一个紧急bug.在切换之前确保工作区和暂存区已经都提交了,因为切换分支的时候会将工作区和暂存区覆盖掉.
 
     ```
     $ git checkout master
     $ git checkout -b hotfix
 
-    # edit hello.cpp changed 4 line printf("Hello World!");
+    # edit hello.cpp changed 4 line printf("Hello World!\n");
 
     $ git ci -a -m 'fix bug'
     ```
 
     <div align="center"><img src="./asset/merge_branch_merge_hotfix.jpg" width="80%"></div>
 
-    当`hotfix`分支内容测试没有问题之后,就可以合并到`master`部署上线了.当我们要解决完这个任务需要切换回原来的分支完成原来的需求, `git branch -d hotfix`命令删除分支.
+    当 `hotfix` 分支内容测试没有问题之后,就可以合并到 `master` 部署上线了.当我们要解决完这个任务需要切换回原来的分支完成原来的需求, `git branch -d hotfix`命令删除分支.
 
     如果顺着一个分支走下去能够到达另一个分支,那么Git在合并两者的时候,只会简单的将指针向前推进,因为这种情况下的合并操作没有需要解决的分歧 快进(fast-forward).
 
@@ -529,12 +526,12 @@ Git是一个分布式版本控制系统.
     1 file changed, 1 insertion(+), 1 deletion(-)
 
     $ git branch -d hotfix
+    Deleted branch hotfix (was f21f8c0).
     ```
-
 
     <div align="center"><img src="./asset/merge_branch_three_merge.jpg" width="80%"></div>
 
-    假如我们已经完成了issue的功能,现在需要合并到`master`分支中,此时合并分支就和`hotfix`不太一样了.这时分支在一个更早的地方发生了分离,`master`不是`issue`的直接祖先.所以Git需要使用3个提交来完成这次的合并,一个共同祖先提交,和各个分支的头提交. 三方合并之后作为一个新的快照并且创建一个新的提交指向它,此时`C5`提交有两个父提交.
+    假如我们已经完成了 `issue` 的功能,现在需要合并到 `master` 分支中,此时合并分支就和 `hotfix` 不太一样了.这时分支在一个更早的地方发生了分离, `master` 不是 `issue` 的直接祖先.所以 Git 需要使用3个提交来完成这次的合并,一个共同祖先提交,和各个分支的头提交. 三方合并之后作为一个新的快照并且创建一个新的提交指向它,此时`C5`提交有两个父提交.
 
     ```
     $ git merge issue
@@ -545,20 +542,20 @@ Git是一个分布式版本控制系统.
 
 - ## 解决合并时的冲突
 
-    有时候合并没有那么顺利,出现在两个分支对同一部分进行修改,就如我们`master`分支修改大写,紧接着下一行增加了新的内容,Git在合并时遇见连续两行都修改了就无法自动合并了.
+    有时候合并没有那么顺利,出现在两个分支对同一部分进行修改,就如我们 `master` 分支修改大写,紧接着下一行增加了新的内容,Git在合并时遇见连续两行都修改了就无法自动合并了.
 
     ```
     int main(){
     4 <<<<<<< HEAD
-    5     printf("Hello World!");
+    5     printf("Hello World!\n");
     6 =======
-    7     printf("hello world!");
-    8     printf("hello git!");
+    7     printf("hello world!\n");
+    8     printf("hello git!\n");
     9 >>>>>>> issue
     10 }
     ```
 
-    `<<<<<<<<< HEAD` 所分割的版本为当前分支版本,对于这次合并也就是`master`分支,`>>>>>>>> issue`部分就是被合并的分支. 为了解决冲突,我们必须使用`==========`中的一部分或者自行保留删除内容.
+    `<<<<<<<<< HEAD` 所分割的版本为当前分支版本,对于这次合并也就是 `master` 分支, `>>>>>>>> issue` 部分就是被合并的分支. 为了解决冲突,我们必须使用`==========`中的一部分或者自行保留删除内容.
 
     如果你修改成满意的结果,就可以将这次冲突文件提交来完成合并并提交.
 
@@ -570,19 +567,46 @@ Git是一个分布式版本控制系统.
 
     $ git ci -a -m 'resolve confilct'
     [master 441c2b4] resolve confilct
+
+    $git log --graph --stat --pretty=oneline
+
+    *   f254c5acff4696a6b7b0b54938895983b85532da resolve conflict
+    |\
+    | * 27a5340a4b2b3f555b3a8c24a96efad2d0d24285 add hello git
+    | |  hello.cpp | 3 ++-
+    | |  1 file changed, 2 insertions(+), 1 deletion(-)
+    * | f21f8c03f4d8b8cb763bf478ff0a05ae7b2fcf0c fix bug
+    |/
+    |    hello.cpp | 2 +-
+    |    1 file changed, 1 insertion(+), 1 deletion(-)
+    * 43656af4d9232b21ff870c877de6f3c250639989 add ignore
+    |  .gitignore | 1 +
+    |  README.md  | 4 ++--
+    |  hello.cpp  | 4 ++++
+    |  3 files changed, 7 insertions(+), 2 deletions(-)
+    * 57f6604a32fcbf123ae2dca26db2e048054487f5 delete aa
+    |  aa | 0
+    |  1 file changed, 0 insertions(+), 0 deletions(-)
+    * d2e7feacaa3a8b31f329c4fefacb89d5eaad55e1 second commit
+    |  .gitignore | 0
+    |  README.md  | 2 ++
+    |  aa         | 0
+    |  3 files changed, 2 insertions(+)
+    * fd32c808c771700b6d510e88f222964b78bbd629 first commit
+
     ```
 
 - ## 分支使用方式
 
   - ### 永久分支
 
-    只在`master`分支上保留完全稳定的代码.他们还有一些名为 `develop`或者`next`的平行分支,被用来做后续开发或者测试稳定性,这些分支不必保持绝对稳定,但是一旦达到稳定状态,它们就可以被合并入`master`分支了.
+    只在 `master` 分支上保留完全稳定的代码.他们还有一些名为 `develop` 或者 `next` 的平行分支,被用来做后续开发或者测试稳定性,这些分支不必保持绝对稳定,但是一旦达到稳定状态,它们就可以被合并入 `master` 分支了.
 
     <div align="center"><img src="./asset/branch_workflow.jpg" width="80%"></div>
 
   - ### 特性分支
 
-    特性分支对任何规模的项目都适用.特性分支是一种短期分支,它被用来实现单一特性或其相关工作.类似刚才分支合并例子. `issue`和`hotfix`每个分支都有他们单独的需求,当这个需求开发完成之后合并到主分支之后,该分支的使命也将完成.
+    特性分支对任何规模的项目都适用.特性分支是一种短期分支,它被用来实现单一特性或其相关工作.类似刚才分支合并例子. `issue` 和 `hotfix` 每个分支都有他们单独的需求,当这个需求开发完成之后合并到主分支之后,该分支的使命也将完成.
 
 # 远程仓库
 
