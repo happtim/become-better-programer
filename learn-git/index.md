@@ -3,7 +3,7 @@
 
 Git是一个分布式版本控制系统.
 
-学术点说,版本控制就是对文件变更过程的管理.说白了,版本控制就是要把一个文件或一些文件的各个版本按一定的方式管理起来,目的是需要用到某个版本的时候可以随时拿出来.
+版本控制就是对文件变更过程的管理.说白了,版本控制就是要把一个文件或一些文件的各个版本按一定的方式管理起来,目的是需要用到某个版本的时候可以随时检索出来.
 
 分布式是相对于集中式来说的, Git 的数据不止保存在服务器上,同时也完整的保存在本地计算机上,所以我们称Git为分布式版本控制系统.
 
@@ -31,7 +31,7 @@ Git是一个分布式版本控制系统.
         CVS(Concurrent Versions System)诞生于1985年,是由荷兰阿姆斯特丹大学的Dick Grune教授实现的.当时Dick Grune和两个学生共同开发一个项目,但是三个人的工作时间无法协调到一起,迫切需要一个记录和协同开发的工具软件.CVS成功地为后来的版本控制系统确立了标准,像提交说明(commit log),检入(checkin),检出(checkout),里程碑(tag),分支(branch)等概念在CVS中早就已经确立. 
 
     - ### SVN
-        Subversion,由于其命令行工具名为svn,因此通常被简称为SVN.SVN由CollabNet公司于2000年资助并开始开发,目的是创建一个更好用的版本控制系统以取代CVS.
+        Subversion,SVN由CollabNet公司于2000年资助并开始开发,目的是创建一个更好用的版本控制系统以取代CVS.
 
     - ### Git
         在2002年以前，世界各地的志愿者把源代码文件通过diff的方式发给Linus，然后由Linus本人通过手工方式合并代码！
@@ -65,7 +65,7 @@ Git是一个分布式版本控制系统.
         在 Git 中的绝大多数操作都只需要访问本地文件和资源，一般不需要来自网络上其它计算机的信息. 
 
     - ### 保存数据完成性
-        Git 中所有数据在存储前都计算校验和，然后以校验和来引用。 这意味着不可能在 Git 不知情时更改任何文件内容或目录内容。 这个功能建构在 Git 底层.
+        Git 中所有数据在存储前都计算校验和，然后以校验和来引用. 这意味着不可能在 Git 不知情时更改任何文件内容或目录内容. Git 使用的散列算法为 `SHA-1` (Secure Hash Algorithm 1) .
 
 
 # Git 基础 
@@ -79,9 +79,9 @@ Git是一个分布式版本控制系统.
 - ## 配置
 
     - ### 配置文件
-      * /etc/gitcofig文件.系统级别每个用户及仓库得配置.
-      * ~/.gitconfig文件.针对当前用户配置.
-      * Git仓库中.git/config文件.针对该仓库配置.
+      * /etc/gitcofig文件 #系统级别仓库得配置.
+      * ~/.gitconfig文件 #针对当前用户配置.
+      * Git仓库中.git/config文件 #针对该仓库配置.
 
       级别约到用户级别,优先级越高.可以覆盖上一级配置.
 
@@ -138,17 +138,17 @@ Git是一个分布式版本控制系统.
         $ git clone url
         ```
 
-        如果你想参与一个已有项目开发,这时就要用到git clone命令. 如果你对Subversion很熟悉,它的获取代码的命令就不是"clone"而不是"checkout". Git 克隆的是该Git仓库服务器上的几乎所有数据,而不是仅仅复制完成你的工作所需要文件.
+        如果你想参与一个已有项目开发,这时就要用到git clone命令. 如果你对SVN很熟悉,它的获取代码的命令是"checkout". Git 克隆的是该Git仓库服务器上的几乎所有数据,而不是仅仅复制完成你的工作所需要文件.
 
 - ## 提交内容
 
   - ### 三种状态
 
-    Git的文件有三种状态,我们的文件可能处于其中之一:已提交Git仓库(committed),已修改(modified)和已暂存(staged).
+    Git的文件有三种状态,我们的文件可能处于其中之一:已提交(committed),已修改(modified)和已暂存(staged).
 
-    ![三种状态](./asset/three_stage.jpg)
+    ![三种状态](./asset/three-stage.jpg)
 
-    处于工作目录的文件通过 `add` 命令转化状态为已暂存. 已暂存的文件通过 `commit` 命令转化为已提交状态. 编辑以提交或者暂存区的文件,其状态转化为已修改.
+    处于工作目录的文件通过 `add` 命令转化状态为已暂存. 已暂存的文件通过 `commit` 命令转化为已提交状态. 编辑已提交或者暂存区的文件,其状态转化为已修改.
 
   - ### 检查文件状态
 
@@ -173,7 +173,7 @@ Git是一个分布式版本控制系统.
     nothing added to commit but untracked files present (use "git add" to track)
     ```
 
-    我们新增一个`README.md`文件,然后使用状态查看命令.然后文件出现在未跟踪的文件中.需要显示的表明我想跟踪它之后才会纳入跟踪返回. 由于我们编译程序会产生一些二进制文件,不是出现在我们工作目录中的文件就会被跟踪的.
+    我们新增一个`README.md`文件,然后使用状态查看命令.然后文件出现在未跟踪的文件中.需要显示的表明我想跟踪它之后才会纳入暂存区. 由于我们编译程序会产生一些二进制文件,不是出现在我们工作目录中的文件就会被跟踪的.
 
   - ### 跟踪文件
 
@@ -221,7 +221,7 @@ Git是一个分布式版本控制系统.
     no changes added to commit (use "git add" and/or "git commit -a")
     ```
 
-    修改已提交的文件,使用`git status`查看状态,说明这个提交的文件内容发生变化,但是还没有放入暂存区,需要使用`git add`命令将已跟踪被修改文件放入暂存区,为下次提交做准备.
+    修改已提交的文件,使用 `git status` 查看状态,说明这个提交的文件内容发生变化,但是还没有放入暂存区,需要使用 `git add` 命令将已跟踪被修改文件放入暂存区,为下次提交做准备.
 
     ```
     $ git add README.md
@@ -241,27 +241,28 @@ Git是一个分布式版本控制系统.
     #       modified:   README.md
     ```
     
-    如果在README.md文件再添加一些内容,使用`git status`命令查看状态,发现README.md文件出现在了暂存区和非暂存区.`git add`命令其实将当时一个版本存入暂存区.当你`git commit`其实只是将暂存区的文件提交到Git仓库中.
+    如果在 `README.md` 文件再添加一些内容,使用 `git status` 命令查看状态,发现 `README.md` 文件出现在了暂存区和非暂存区. `git add` 命令其实将当时一个版本存入暂存区.当你 `git commit` 其实只是将暂存区的文件提交到Git仓库中.
 
   - ### 简短状态
 
     ```
-    $ touch cstdlib.so
     $ touch .gitignore
-    $ git add .gitignore
+    $ touch aa
+    $ git ss -s
+    MM README.md
+    ?? .gitignore
+    ?? aa
 
+    $ git add .
     $ git ss -s
     A  .gitignore
-    MM README.md
-    ?? cstdlib.so
+    M  README.md
+    A  aa
 
-    $ echo "*.so" >> .gitignore
-    $ git ss -s
-    AM .gitignore
-    MM README.md
+    $ git ci -m 'second commit'
     ```
 
-    又创建了两个文件,将`.gitignore`文件加入了暂存区.使用`git status -s`命令可以看到左侧列出文件的状态.`M`代表文件有修改,`A`代表文件添加到暂存区,`??`代表文件没有被跟踪.右边的`M`代表文件修改还有没加入暂存区,左边`M`代表文件文件修改了并放入了暂存区.
+    又创建了两个文件,将 `.gitignore` 文件加入了暂存区.使用 `git status -s` 命令可以看到左侧列出文件的状态. `M` 代表文件有修改, `A` 代表文件添加到暂存区, `??` 代表文件没有被跟踪.右边的 `M` 代表文件修改还有没加入暂存区,左边 `M` 代表文件文件修改了并放入了暂存区.
 
   - ### 删除文件
 
@@ -277,11 +278,43 @@ Git是一个分布式版本控制系统.
     #
     #       deleted:    aa
     #
+
+    $ git ci -m 'delete aa'
+    [master ad6f932] delete aa
+    1 file changed, 0 insertions(+), 0 deletions(-)
+    delete mode 100644 aa
     ```
 
   - ### 忽略文件
   
-    有时候我们有些文件不需要加入Git版本管理.像上面例子中我们往`.gitignore`写入带通配符的字符之后,`git status`就忽略了满足条件的文件.
+    有时候我们有些文件不需要加入Git版本管理.像上面例子中我们往 `.gitignore` 写入带通配符的字符之后, `git status` 就忽略了满足条件的文件.
+
+    ```
+    $ vim hello.cpp 
+
+    #include <cstdio>
+    int main(){
+        printf("hello git");
+    }
+
+    $ g++ hello.cpp
+
+    $ git ss - s
+    ?? a.out
+    ?? hello.cpp
+
+    $ echo "*.out" >> .gitignore
+
+    $ git ss -s
+     M .gitignore
+    ?? hello.cpp
+
+    $ git add .
+    $ git ci -m 'add ignore'
+    [master cd3df92] add ignore
+    2 files changed, 5 insertions(+)
+    create mode 100644 hello.cpp
+    ```
 
     * 所有空行或者#开头的都将忽略.
     * 使用glob模式匹配,glob是shell使用的路径匹配符,类似与正则.
@@ -317,29 +350,30 @@ Git是一个分布式版本控制系统.
     如果两个文件相似度很高,那么上下文格式的diff,将显示大量重复的内容,很浪费空间.1990年,GNU diff率先推出了"合并格式"的diff,将f1和f2的上下文合并在一起显示.
 
     ```
-    # 使用编辑器将第一行basic首字母大写
+    # 使用编辑器将第最后一行的.换成!
+
     $ git diff
     diff --git a/README.md b/README.md
-    index d61d399..9170b16 100644
+    index 281f5d2..723f741 100644
     --- a/README.md
     +++ b/README.md
-    @@ -1,2 +1,3 @@
-    -# Git basic
-    +# Git Basic
+    @@ -1,3 +1,3 @@
+    # Git Basic
     Git Is Distributed VCS.
-    +  Git Was Created By Liuns Torvalds In 2005.
+    -  Git Was Created By Linus Torvalds In 2005.
+    +  Git Was Created By Linus Torvalds In 2005!
     ```
 
     此命令比较的是工作目录中当前文件和暂存区域快照之间的差异,也就是修改之后还没有暂存起来的变化内容.
 
-    `index d61d399..9170b16 100644` 表示两个版本hash值,
+    `index d61d399..9170b16 100644` 表示两个版本SHA-1值,
     前面的是缓存区,后面是工作目录.
 
-    `--- a/README.md +++b/README.md` 表示`---`表示变动前文件,`+++`表示变动后文件.
+    `--- a/README.md +++b/README.md` 表示 `---` 表示变动前文件, `+++` 表示变动后文件.
 
-    `@@ -1,2 +1,3 @@` `@@`是收尾标记, `-1,2` 表示变动前文件从第一行开始后的两行内容. `+1,3` 表示变动后文件从第一行开始后的3行内容.
+    `@@ -1,2 +1,3 @@` `@@`是首位标记, `-1,3` 表示变动前文件从第一行开始后的3行内容. `+1,3` 表示变动后文件从第一行开始后的3行内容.
 
-    剩余内容为变更内容,前面带`-`号的代表变动前文件内容.前面带`+`号的代表变动后文件内容.
+    剩余内容为变更内容,前面带 `-` 号的代表变动前文件内容.前面带 `+` 号的代表变动后文件内容.
 
     <div align="left"><img src="./asset/example-diff.jpg" width="80%"></div>
 
@@ -355,7 +389,7 @@ Git是一个分布式版本控制系统.
     $ git diff HEAD
     ```
 
-    要查看最后两次提交的差异,`HEAD`表示当前版本,`HEAD^`表示上一版本 ,`HEAD^^`表示上上一版本.`HEAD~3`表示上上上一版本.
+    要查看最后两次提交的差异, `HEAD` 表示当前版本,`HEAD^` 表示上一版本 , `HEAD^^` 表示上上一版本. `HEAD~3` 表示上上上一版本.
 
     ```
     $ git diff HEAD^ [-- file]
@@ -376,7 +410,6 @@ Git是一个分布式版本控制系统.
     ```
 
 # 分支
-
 
 - ## 分支简介
 
