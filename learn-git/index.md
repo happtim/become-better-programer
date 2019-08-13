@@ -118,7 +118,7 @@ Git是一个分布式版本控制系统.
 
     **Windows**系统打开网页[https://git-scm.com/download/win](https://git-scm.com/download/win)会自动现在最新版本.
 
-    Linux系统使用包管理工具.**redhat,centous,fedora** 使用 `yum install git` 或者 **ubuntu** 使用 `apt-get install git`
+    Linux系统使用包管理工具.**redhat,centous,fedora** 使用 `yum install git` 或者 **ubuntu** 使用 `sudo apt-get install git`
 
 - ## 配置
 
@@ -207,7 +207,7 @@ Git是一个分布式版本控制系统.
 
     ```
     $ echo "# Git basic" > README.md
-    $ git ss
+    $ git st
     # On branch master
     # Initial commit
     # Untracked files:
@@ -223,7 +223,7 @@ Git是一个分布式版本控制系统.
 
     ```
     $ git add README.md
-    $ git ss
+    $ git st
     # On branch master
     # Initial commit
     # Changes to be committed:
@@ -232,7 +232,7 @@ Git是一个分布式版本控制系统.
     #       new file:   README.md
     ```
 
-    `git add`命令将指定的文件纳入跟踪,将其放入缓存区.
+    `git add` 命令将指定的文件纳入跟踪,将其放入暂存区.
 
   - ### 提交更新
   
@@ -242,19 +242,19 @@ Git是一个分布式版本控制系统.
     1 file changed, 1 insertion(+)
     create mode 100644 README.md
 
-    $ git ss
+    $ git st
     # On branch master
     nothing to commit, working directory clean
     ```
 
-    `git commit`将放入缓存区的文件提交到Git仓库中纳入版本管理中.
+    `git commit` 将放入暂存区的文件提交到 Git 仓库中纳入版本管理中.
 
   - ### 修改已提交文件
   
     ```
     $ echo "  Git Is Distributed VCS." >> README.md
 
-    $ git ss
+    $ git st
     # On branch master
     # Changes not staged for commit:
     #   (use "git add <file>..." to update what will be committed)
@@ -271,7 +271,7 @@ Git是一个分布式版本控制系统.
     $ git add README.md
     $ echo "  Git Was Created By Liuns Torvalds In 2005." >> README.md
 
-    $ git ss
+    $ git st
     # On branch master
     # Changes to be committed:
     #   (use "git reset HEAD <file>..." to unstage)
@@ -292,13 +292,13 @@ Git是一个分布式版本控制系统.
     ```
     $ touch .gitignore
     $ touch aa
-    $ git ss -s
+    $ git st -s
     MM README.md
     ?? .gitignore
     ?? aa
 
     $ git add .
-    $ git ss -s
+    $ git st -s
     A  .gitignore
     M  README.md
     A  aa
@@ -315,7 +315,7 @@ Git是一个分布式版本控制系统.
     ```
     $ git rm aa
     rm 'aa'
-    $ git ss
+    $ git st
     # On branch issue
     # Changes to be committed:
     #   (use "git reset HEAD <file>..." to unstage)
@@ -343,13 +343,13 @@ Git是一个分布式版本控制系统.
 
     $ g++ hello.cpp
 
-    $ git ss - s
+    $ git st - s
     ?? a.out
     ?? hello.cpp
 
     $ echo "*.out" >> .gitignore
 
-    $ git ss -s
+    $ git st -s
      M .gitignore
     ?? hello.cpp
 
@@ -410,8 +410,8 @@ Git是一个分布式版本控制系统.
 
     此命令比较的是工作目录中当前文件和暂存区域快照之间的差异,也就是修改之后还没有暂存起来的变化内容.
 
-    `index d61d399..9170b16 100644` 表示两个版本SHA-1值,
-    前面的是缓存区,后面是工作目录.
+    `d61d399..9170b16` 表示两个版本SHA-1值,
+    前面的是暂存区,后面是工作目录.
 
     `--- a/README.md +++b/README.md` 表示 `---` 表示变动前文件, `+++` 表示变动后文件.
 
@@ -421,13 +421,13 @@ Git是一个分布式版本控制系统.
 
     <div align="left"><img src="./asset/example-diff.jpg" width="80%"></div>
 
-    要查看已暂存的将要添加到下次提交里的内容,使用`--cached`
+    要查看已暂存的将要添加到下次提交里的内容,使用`--cached` , `---` 版本为 `HEAD` , `+++` 版本为暂存区.
 
     ```
     $ git diff --cached
     ```
 
-    要查看工作区与最新版本库的差异 
+    要查看工作区与最新版本库的差异 , `---` 版本为 `HEAD` , `+++` 版本为工作区
 
     ```
     $ git diff HEAD
@@ -887,7 +887,7 @@ Git是一个分布式版本控制系统.
     $ touch a
     $ vi hello.cpp
     $ git add *
-    $ git ss
+    $ git st
     # On branch issue
     # Changes to be committed:
     #   (use "git reset HEAD <file>..." to unstage)
@@ -900,7 +900,7 @@ Git是一个分布式版本控制系统.
     Unstaged changes after reset:
     M       hello.cpp
 
-    $ git ss
+    $ git st
     # On branch issue
     # Changes to be committed:
     #   (use "git reset HEAD <file>..." to unstage)
@@ -921,7 +921,7 @@ Git是一个分布式版本控制系统.
 
     ```
     $ git checkout -- hello.cpp
-    $ git ss
+    $ git st
     # On branch issue
     # Changes to be committed:
     #   (use "git reset HEAD <file>..." to unstage)
@@ -984,7 +984,7 @@ Git是一个分布式版本控制系统.
 
         <div align="center"><img src="./asset/reset-commit.jpg" width="80%"></div>
 
-        使用 `git commit` 命令,它会获取缓存区中的内容把它保存成一个快照.然后创建一个提交指向这个快照,最后更新 `master` 指向这次提交.
+        使用 `git commit` 命令,它会获取暂存区中的内容把它保存成一个快照.然后创建一个提交指向这个快照,最后更新 `master` 指向这次提交.
 
         <div align="center"><img src="./asset/reset-edit-file-v1.jpg" width="80%"></div>
 
@@ -1109,7 +1109,7 @@ $ tree
     ```
     $ git update-index --add --cacheinfo 100644 d670460b4b4aece5915caf5c68d12f560a9fe3e4 test.txt
 
-    $ git ss
+    $ git st
     # On branch master
     # Changes to be committed:
     #   (use "git reset HEAD <file>..." to unstage)
@@ -1138,7 +1138,7 @@ $ tree
 
     Git根据某一时刻暂存区(即index)所表示的状态创建并记录一个对应的树对象.
 
-    为创建一个树对象,首先需要通过暂存一些文件来创建一个暂存区. 可以通过底层命令 update-index 为一个单独文件.`--add`选项因为此前该文件并不在暂存区中,`--cacheinfo`选项,因为将要添加的文件位于 Git 数据库中(.git/objects/下),而不是位于当前目录下.我们指定的文件模式为`100644`表明这是一个普通文件.
+    为创建一个树对象,首先需要通过暂存一些文件来创建一个暂存区. 可以通过底层命令 update-index 为一个单独文件. `--add` 选项因为此前该文件并不在暂存区中, `--cacheinfo` 选项,因为将要添加的文件位于 Git 数据库中(.git/objects/下),而不是位于当前目录下.我们指定的文件模式为 `100644` 表明这是一个普通文件.
 
     可以通过 `write-tree` 命令将暂存区内容写入一个树对象.因为 `test.txt` 是从 Git 数据库中加入的,所以和工作区没有该文件提示这个文件被删除了.
 
@@ -1279,7 +1279,7 @@ $ tree
 
     - ### 远程分支
 
-        和本地分支引用一样,保存远程仓库中最后一次推送时分支所对应得提交位置.保存在`refs/remotes`目录中.
+        本地分支存储在 `refs/heads/` 下, 和本地分支引用一样,保存远程仓库中最后一次推送时分支所对应得提交位置.保存在 `refs/remotes` 目录中.
 
-        和本地分支最主要得区别就是,远程分支是只读的.虽然可以`checkout`远程分支,但是也是跟踪分支,不能直接将`HEAD`指向远程分支,也就不能通过`commit`来更新远程引用.
+        和本地分支最主要得区别就是,远程分支是只读的.虽然可以 `checkout` 远程分支,但是也是跟踪分支,不能直接将 `HEAD` 指向远程分支,也就不能通过 `commit` 来更新远程引用.
 
