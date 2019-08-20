@@ -1,0 +1,5 @@
+[Adblock Plus 3.1]
+!屏蔽百度侧栏热点新闻
+baidu.com##.FYB_RD
+baidu.com###content_right
+baidu.com##.cr-offset
