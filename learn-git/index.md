@@ -461,7 +461,7 @@ Git是一个分布式版本控制系统.
 
     ```
     $ git branch branchname 从当前快照创建一个分支
-    $ git branch 查看已有分支和当前分支
+    $ git branch [-a|-r] 查看所有分支,远程分支.
     $ git branch -v 查看每个分支最后一次提交
     $ git branch -d branchname 删除分支 
     ```
